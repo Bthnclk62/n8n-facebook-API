@@ -1,12 +1,5 @@
 # 🚀 HOTEL AGENT - META ADS AUTOMATION MASTER PROMPT
 
-## PROJE KİMLİĞİ VE BAĞLAM
-
-**Şirket:** EtsTur Turizm A.Ş. - Hotel Agent Markası  
-**Ekip:** 5 dijital pazarlama uzmanı (batuhan.celik@etstur.com, mert.pektas@etstur.com, ece.sarac@etstur.com)  
-**Teknoloji Stack:** n8n (Self Hosted v2.0.3) + Google Sheets + Meta Marketing API v23.0  
-**Workflow Adı:** Hotel Agent - Automation v20 (ULTIMATE FIX)  
-**Workflow ID:** JM5MUpPGVYxNBdph
 
 ---
 
