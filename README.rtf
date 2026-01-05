@@ -1,0 +1,900 @@
+{\rtf1\ansi\ansicpg1254\cocoartf2865
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;\f1\fnil\fcharset0 AppleColorEmoji;\f2\fnil\fcharset0 Menlo-Italic;
+\f3\fnil\fcharset0 HelveticaNeue;\f4\fnil\fcharset0 HelveticaNeue-Bold;}
+{\colortbl;\red255\green255\blue255;\red205\green204\blue213;\red19\green19\blue19;\red221\green221\blue221;
+\red245\green188\blue80;\red114\green201\blue195;\red229\green189\blue123;\red153\green138\blue248;\red118\green180\blue255;
+\red218\green124\blue212;}
+{\*\expandedcolortbl;;\cssrgb\c83922\c83922\c86667;\cssrgb\c9412\c9412\c9412;\cssrgb\c89412\c89412\c89412;
+\cssrgb\c97255\c78039\c38431;\cssrgb\c50980\c82353\c80784;\cssrgb\c92157\c78431\c55294;\cssrgb\c66667\c62745\c98039;\cssrgb\c52941\c76471\c100000;
+\cssrgb\c89020\c58039\c86275;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid1\'01\uc0\u8259 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 \expnd0\expndtw0\kerning0
+# 
+\f1 \uc0\u55357 \u56960 
+\f0  HOTEL AGENT - META ADS AUTOMATION MASTER PROMPT\cf4 \cb1 \
+\
+\cf2 \cb3 ## PROJE K\uc0\u304 ML\u304 \u286 \u304  VE BA\u286 LAM\cf4 \cb1 \
+\
+\cf5 \cb3 **\uc0\u350 irket:**\cf4  EtsTur Turizm A.\uc0\u350 . - Hotel Agent Markas\u305   \cb1 \
+\cf5 \cb3 **Ekip:**\cf4  5 dijital pazarlama uzman\uc0\u305  (batuhan.celik@etstur.com, mert.pektas@etstur.com, ece.sarac@etstur.com)  \cb1 \
+\cf5 \cb3 **Teknoloji Stack:**\cf4  n8n (Self Hosted v2.0.3) + Google Sheets + Meta Marketing API v23.0  \cb1 \
+\cf5 \cb3 **Workflow Ad\uc0\u305 :**\cf4  Hotel Agent - Automation v20 (ULTIMATE FIX)  \cb1 \
+\cf5 \cb3 **Workflow ID:**\cf4  JM5MUpPGVYxNBdph\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55356 \u57263 
+\f0  PROJEN\uc0\u304 N ANA HEDEF\u304 \cf4 \cb1 \
+\
+\cb3 Dijital pazarlama ekibinin Meta Ads Manager'a \cf5 **hi\'e7 girmeden**\cf4  t\'fcm Facebook & Instagram reklam operasyonlar\uc0\u305 n\u305  \cf5 **sadece Google Sheets \'fczerinden**\cf4  y\'f6netmesini sa\uc0\u287 layan tam otomatik sistem.\cb1 \
+\
+\cf2 \cb3 ### \uc0\u304 \u351  Problemi\cf4 \cb1 \
+\cb3 Ekip \'fcyeleri g\'fcnlerinin b\'fcy\'fck b\'f6l\'fcm\'fcn\'fc Meta Ads Manager'da manuel kampanya olu\uc0\u351 turma/d\'fczenleme ile ge\'e7iriyor. Manuel de\u287 i\u351 iklikler Google Sheets ile senkronize olmad\u305 \u287 \u305 nda veri tutars\u305 zl\u305 klar\u305  olu\u351 uyor.\cb1 \
+\
+\cf2 \cb3 ### \'c7\'f6z\'fcm Mimarisi\cf4 \cb1 \
+\cb3 ```\cb1 \
+\cb3 Google Sheets (Veri Giri\uc0\u351 i) \cb1 \
+\cb3     \uc0\u8595  [30 dk polling]\cb1 \
+\cb3 n8n Workflow (\uc0\u304 \u351 leme)\cb1 \
+\cb3     \uc0\u8595  [API Calls]\cb1 \
+\cb3 Meta Marketing API v23.0 (Kampanya Y\'f6netimi)\cb1 \
+\cb3     \uc0\u8595  [ID Geri Yazma]\cb1 \
+\cb3 Google Sheets (Sonu\'e7 G\'fcncelleme)\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56522 
+\f0  MEVCUT WORKFLOW YAPISI (66 NODE)\cf4 \cb1 \
+\
+\cf2 \cb3 ### Tetikleyiciler (Triggers)\cf4 \cb1 \
+\cf2 \cb3 1.\cf4  \cf5 **Meta Ads Automation**\cf4  - Google Sheets Trigger (30 dk polling, A2:AZ20000 range)\cb1 \
+\cf2 \cb3 2.\cf4  \cf5 **Schedule Trigger**\cf4  - Sync mod\'fcl\'fc i\'e7in dakikal\uc0\u305 k tetikleyici\cb1 \
+\
+\cf2 \cb3 ### Ana Mod\'fcller\cf4 \cb1 \
+\
+\cf2 \cb3 #### 
+\f1 1\uc0\u65039 \u8419 
+\f0  CREATE MODULE (Kampanya/AdSet/Ad Olu\uc0\u351 turma)\cf4 \cb1 \
+\cb3 ```\cb1 \
+\cb3 Action = "create_campaign" tetikler\cb1 \
+\
+\cb3 Ak\uc0\u305 \u351  (CBO - Campaign Budget Optimization):\cb1 \
+\cb3 Meta Ads Automation \uc0\u8594  Input Validation \u8594  Mapping \u8594  Date & Time \u8594  Action Router\cb1 \
+\cb3     \uc0\u8594  If Budget Level (Camp Budget) [TRUE]\cb1 \
+\cb3     \uc0\u8594  Build Campaign Body (CBO) \u8594  Camp Budget - Camp. Create\cb1 \
+\cb3     \uc0\u8594  Camp. ID \u8594  Build Final Ad Set Body \u8594  Campaign Budget - Ad Set Create\cb1 \
+\cb3     \uc0\u8594  Write Ad Set ID \u8594  Build Final Ad Body (CBO) \u8594  Campaign Budget - Ad Create\cb1 \
+\cb3     \uc0\u8594  Mark Action NONE (CBO)\cb1 \
+\
+\cb3 Ak\uc0\u305 \u351  (ABO - Ad Set Budget Optimization):\cb1 \
+\cb3     \uc0\u8594  If Budget Level (Camp Budget) [FALSE]\cb1 \
+\cb3     \uc0\u8594  Build Campaign Body (ABO) \u8594  Ad Set Budget - Camp. Create\cb1 \
+\cb3     \uc0\u8594  Camp. ID1 \u8594  Build Final Ad Set Body1 \u8594  AD Set Budget - Ad Set Create\cb1 \
+\cb3     \uc0\u8594  Write Ad Set ID1 \u8594  Build Final Ad Body (ABO) \u8594  Ad Set Budget - Ad Create\cb1 \
+\cb3     \uc0\u8594  Mark Action NONE (ABO)\cb1 \
+\cb3 ```\cb1 \
+\
+\cf2 \cb3 #### 
+\f1 2\uc0\u65039 \u8419 
+\f0  UPDATE MODULE (Kampanya/AdSet/Ad G\'fcncelleme)\cf4 \cb1 \
+\cb3 ```\cb1 \
+\cb3 Action = "update" tetikler\cb1 \
+\
+\cb3 Ak\uc0\u305 \u351  (CBO):\cb1 \
+\cb3 Action Router [update] \uc0\u8594  If Budget Level (Camp Budget)1 [TRUE]\cb1 \
+\cb3     \uc0\u8594  Build CBO Campaign Update Body \u8594  Camp Budget - Camp. update\cb1 \
+\cb3     \uc0\u8594  Build Final Ad Set UPDATE Body (CBO) \u8594  Campaign Budget - Ad Set Update\cb1 \
+\cb3     \uc0\u8594  Build CBO Ads Update \u8594  Campaign Budget - Ad Update (Ad Creatives)\cb1 \
+\cb3     \uc0\u8594  Campaign Budget - Ad Update (New Ad Body)\cb1 \
+\cb3     \uc0\u8594  If CBO (Ad Name - Status) \u8594  Campaign Budget - Ad Update (Ad ID)\cb1 \
+\cb3     \uc0\u8594  Mark Action NONE (CBO)-Name/Status / Mark Action NONE (CBO) New Ad Body\cb1 \
+\
+\cb3 Ak\uc0\u305 \u351  (ABO):\cb1 \
+\cb3     \uc0\u8594  If Budget Level (Camp Budget)1 [FALSE]\cb1 \
+\cb3     \uc0\u8594  Build ABO Campaign Update Body \u8594  Ad Set Budget - Camp. update\cb1 \
+\cb3     \uc0\u8594  Build Final Ad Set UPDATE Body (ABO) \u8594  Ad Set Budget - Ad Set Update\cb1 \
+\cb3     \uc0\u8594  Build ABO Ads Update \u8594  Ad Set Budget - Ad Update (Ad Creatives)\cb1 \
+\cb3     \uc0\u8594  Ad Set Budget - Ad Update (New Ad Body)\cb1 \
+\cb3     \uc0\u8594  If ABO (Ad Name - Status) \u8594  Ad Set Budget - Ad Update (Ad ID)\cb1 \
+\cb3     \uc0\u8594  Mark Action NONE (ABO)-Name/Status / Mark Action NONE (ABO) New Ad Body\cb1 \
+\cb3 ```\cb1 \
+\
+\cf2 \cb3 #### 
+\f1 3\uc0\u65039 \u8419 
+\f0  SYNC MODULE (Meta \uc0\u8594  Google Sheets Senkronizasyon)\cf4 \cb1 \
+\cb3 ```\cb1 \
+\cb3 Sync = "sync" tetikler\cb1 \
+\
+\cb3 Ak\uc0\u305 \u351 :\cb1 \
+\cb3 Action Router [sync] \uc0\u8594  Sync to Google Sheets \u8594  Code in JavaScript - Sync\cb1 \
+\cb3     \uc0\u8594  Fetch from Meta \u8594  Code in JavaScript - Fetch from Meta\cb1 \
+\cb3     \uc0\u8594  Code in JavaScript3 \u8594  Sync to Google Sheets - Fetch from Meta\cb1 \
+\cb3     \cb1 \
+\cb3 Veya Schedule Trigger ile:\cb1 \
+\cb3 Schedule Trigger \uc0\u8594  Sync to Google Sheets \u8594  ...\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56523 
+\f0  GOOGLE SHEETS YAPISI (43 S\'dcTUN)\cf4 \cb1 \
+\
+\cf2 \cb3 ### Sheet Bilgileri\cf4 \cb1 \
+\cf2 \cb3 -\cf4  \cf5 **Document ID:**\cf4  1MQlMgOSWr2eE8lWBUFRkPIwF8ilbiPACxzxkrYAK0ek\cb1 \
+\cf2 \cb3 -\cf4  \cf5 **Sheet Name:**\cf4  Son (GID: 222526350)\cb1 \
+\cf2 \cb3 -\cf4  \cf5 **Range:**\cf4  A2:AZ20000\cb1 \
+\cf2 \cb3 -\cf4  \cf5 **Header Row:**\cf4  2, First Data Row: 3\cb1 \
+\
+\cf2 \cb3 ### Kritik S\'fctunlar ve Mapping\cf4 \cb1 \
+\
+\cb3 ```\cb1 \
+\cb3 KAMPANYA SEV\uc0\u304 YES\u304 :\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Account ID          \u8594  account_id\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Campaign ID         \u8594  campaign_id (API'den geri yaz\u305 l\u305 r)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Campaign Name       \u8594  campaign_name\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Objective           \u8594  objective (OUTCOME_TRAFFIC, OUTCOME_LEADS, etc.)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Buying Type         \u8594  buying_type (AUCTION)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Special Ad Categories \u8594  special_ad_categories\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Budget              \u8594  budget_type ("Campaign Budget" / "Ad Set Budget")\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Lifetime Budget     \u8594  lifetime_budget\cb1 \
+\cb3 \uc0\u9492 \u9472 \u9472  Status (Campaign)   \u8594  status (ACTIVE/PAUSED/DELETED)\cb1 \
+\
+\cb3 AD SET SEV\uc0\u304 YES\u304 :\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Ad Set ID           \u8594  adset_id (API'den geri yaz\u305 l\u305 r)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Ad Set Name         \u8594  adset_name\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Ad Set Budget       \u8594  daily_budget (TRY, API'ye kuru\u351  olarak g\'f6nderilir)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Start Date          \u8594  start_time (Excel serial \u8594  ISO 8601)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  End Date            \u8594  end_time\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Age_Min             \u8594  targeting.age_min (min: 13)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Age_Max             \u8594  targeting.age_max (max: 65)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Bid Strategy        \u8594  bid_strategy\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Conversion Location \u8594  destination_type mapping\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Optimization Goal   \u8594  optimization_goal\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Platform            \u8594  publisher_platforms\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Placements          \u8594  facebook_positions / instagram_positions\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Billing Event       \u8594  billing_event\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Status (Ad Set)     \u8594  status\cb1 \
+\cb3 \uc0\u9492 \u9472 \u9472  Pixel_ID            \u8594  promoted_object.pixel_id\cb1 \
+\
+\cb3 AD SEV\uc0\u304 YES\u304 :\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  AD ID               \u8594  ad_id (API'den geri yaz\u305 l\u305 r)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Ad Name             \u8594  name\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Primary Text        \u8594  object_story_spec.link_data.message\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Headline            \u8594  object_story_spec.link_data.name\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Description         \u8594  object_story_spec.link_data.description\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  URL                 \u8594  object_story_spec.link_data.link\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Call To Action      \u8594  call_to_action.type\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Call Number         \u8594  call_to_action.value.link (tel:+90...)\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Status (Ad)         \u8594  status\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  FB Page_ID          \u8594  object_story_spec.page_id\cb1 \
+\cb3 \uc0\u9492 \u9472 \u9472  IG User_ID          \u8594  instagram_actor_id\cb1 \
+\
+\cb3 KONTROL ALANLARI:\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Sync                \u8594  "sync" oldu\u287 unda Meta'dan veri \'e7eker\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Action              \u8594  "create_campaign" / "update" / "none"\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Processed           \u8594  \u304 \u351 lem durumu\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Last Error          \u8594  Son hata mesaj\u305 \cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Updated At          \u8594  Son g\'fcncelleme tarihi\cb1 \
+\cb3 \uc0\u9500 \u9472 \u9472  Warnings            \u8594  Uyar\u305 lar\cb1 \
+\cb3 \uc0\u9492 \u9472 \u9472  Row No              \u8594  Sat\u305 r numaras\u305  (matching i\'e7in)\cb1 \
+\cb3 ```\cb1 \
+\
+\cf2 \cb3 ### Sheet'te Kullan\uc0\u305 lan De\u287 erler\cf4 \cb1 \
+\
+\cb3 ```\cb1 \
+\cb3 Action:\cb1 \
+\cb3   - create_campaign  \uc0\u8594  Yeni kampanya/adset/ad olu\u351 turur\cb1 \
+\cb3   - update           \uc0\u8594  Mevcut kampanya/adset/ad g\'fcnceller\cb1 \
+\cb3   - none             \uc0\u8594  \u304 \u351 lem yapmaz (varsay\u305 lan)\cb1 \
+\
+\cb3 Budget:\cb1 \
+\cb3   - Campaign Budget  \uc0\u8594  CBO (Campaign Budget Optimization)\cb1 \
+\cb3   - Ad Set Budget    \uc0\u8594  ABO (Ad Set Budget Optimization)\cb1 \
+\
+\cb3 Conversion Location:\cb1 \
+\cb3   - WEBSITE          \uc0\u8594  Website trafi\u287 i\cb1 \
+\cb3   - CALLS            \uc0\u8594  Telefon aramalar\u305 \cb1 \
+\cb3   - MESSAGING        \uc0\u8594  Mesajla\u351 ma uygulamalar\u305 \cb1 \
+\cb3   - ON_AD            \uc0\u8594  Reklam \'fczerinde (Lead Form)\cb1 \
+\cb3   - NONE             \uc0\u8594  Tan\u305 ms\u305 z (HATA!)\cb1 \
+\
+\cb3 Platform:\cb1 \
+\cb3   - Facebook         \uc0\u8594  Sadece Facebook\cb1 \
+\cb3   - Instagram        \uc0\u8594  Sadece Instagram\cb1 \
+\cb3   - Both             \uc0\u8594  Her iki platform\cb1 \
+\
+\cb3 Placements:\cb1 \
+\cb3   - Facebook Feed, Facebook Stories, Facebook Reels\cb1 \
+\cb3   - Instagram Feed, Instagram Stories, Instagram Reels\cb1 \
+\cb3   - AUTO             \uc0\u8594  Otomatik yerle\u351 im\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56628 
+\f0  TESP\uc0\u304 T ED\u304 LEN SORUNLAR VE \'c7\'d6Z\'dcMLER\cf4 \cb1 \
+\
+\cf2 \cb3 ### SORUN 1: billing_event / optimization_goal / destination_type Uyumsuzlu\uc0\u287 u\cf4 \cb1 \
+\cf5 \cb3 **Hata Kodu:**\cf4  1815117  \cb1 \
+\cf5 \cb3 **Hata Mesaj\uc0\u305 :**\cf4  "Billing event invalid for optimisation goal"\cb1 \
+\
+\cf2 \cb3 #### Meta API Uyumluluk Kurallar\uc0\u305 :\cf4 \cb1 \
+\
+\cb3 | destination_type | Ge\'e7erli optimization_goal | Ge\'e7erli billing_event | Platform K\uc0\u305 s\u305 t\u305  |\cb1 \
+\cb3 |-----------------|---------------------------|----------------------|-----------------|\cb1 \
+\cb3 | WEBSITE | LINK_CLICKS | LINK_CLICKS, IMPRESSIONS | Facebook, Instagram |\cb1 \
+\cb3 | WEBSITE | CONVERSIONS | IMPRESSIONS | Facebook, Instagram |\cb1 \
+\cb3 | PHONE_CALL | QUALITY_CALL | IMPRESSIONS | \cf5 **Sadece Facebook**\cf4  |\cb1 \
+\cb3 | MESSAGING_APPS | CONVERSATIONS | IMPRESSIONS | Facebook, Instagram |\cb1 \
+\cb3 | ON_AD | LEAD_GENERATION | IMPRESSIONS | Facebook, Instagram |\cb1 \
+\cb3 | ON_AD | REACH | IMPRESSIONS | Facebook, Instagram |\cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm Kodu (Build Final Ad Set Body i\'e7ine eklenmeli):\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+\cf6 \cb3 function\cf4  \cf7 validateAndFixApiParams\cf4 (
+\f2\i \cf2 conversionLocation
+\f0\i0 \cf4 , 
+\f2\i \cf2 billingEvent
+\f0\i0 \cf4 , 
+\f2\i \cf2 optimizationGoal
+\f0\i0 \cf4 , 
+\f2\i \cf2 platform
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 const\cf4  \cf8 destType\cf4  \cf2 =\cf4  \cf7 mapConversionToDestination\cf4 (\cf9 conversionLocation\cf4 );\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // PHONE_CALL kurallar\uc0\u305 
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'PHONE_CALL'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 destination_type:\cf4  \cf10 'PHONE_CALL'\cf4 ,\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf10 'IMPRESSIONS'\cf4 ,  
+\f2\i // Zorunlu
+\f0\i0 \cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf10 'QUALITY_CALL'\cf4 ,  
+\f2\i // Zorunlu
+\f0\i0 \cb1 \
+\cb3       \cf2 platform:\cf4  \cf10 'facebook'\cf4 ,  
+\f2\i // Sadece Facebook
+\f0\i0 \cb1 \
+\cb3       \cf2 facebook_positions:\cf4  \cf2 [\cf10 'feed'\cf2 ]\cf4 ,  
+\f2\i // Instagram YOK
+\f0\i0 \cb1 \
+\cb3       \cf2 instagram_positions:\cf4  \cf2 []\cf4 \cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // MESSAGING kurallar\uc0\u305 
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'MESSAGING_APPS'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 destination_type:\cf4  \cf10 'MESSAGING_APPS'\cf4 ,\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf10 'IMPRESSIONS'\cf4 ,\cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf10 'CONVERSATIONS'\cf4 ,\cb1 \
+\cb3       
+\f2\i // Instagram Story/Feed kullan\uc0\u305 lamaz
+\f0\i0 \cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // WEBSITE i\'e7in LINK_CLICKS kontrol\'fc
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'WEBSITE'\cf4  \cf2 &&\cf4  \cf9 optimizationGoal\cf4  \cf2 ===\cf4  \cf10 'LINK_CLICKS'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 destination_type:\cf4  \cf10 'WEBSITE'\cf4 ,\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf9 billingEvent\cf4  \cf2 ===\cf4  \cf10 'LINK_CLICKS'\cf4  \cf6 ?\cf4  \cf10 'LINK_CLICKS'\cf4  \cf6 :\cf4  \cf10 'IMPRESSIONS'\cf4 ,\cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf10 'LINK_CLICKS'\cf4 \cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 return\cf4  \{ \cf2 destination_type:\cf4  \cf9 destType\cf4 , \cf9 billing_event\cf4 , \cf9 optimization_goal\cf4  \};\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 mapConversionToDestination\cf4 (
+\f2\i \cf2 convLoc
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 const\cf4  \cf8 mapping\cf4  \cf2 =\cf4  \{\cb1 \
+\cb3     \cf10 'WEBSITE'\cf2 :\cf4  \cf10 'WEBSITE'\cf4 ,\cb1 \
+\cb3     \cf10 'CALLS'\cf2 :\cf4  \cf10 'PHONE_CALL'\cf4 ,\cb1 \
+\cb3     \cf10 'MESSAGING'\cf2 :\cf4  \cf10 'MESSAGING_APPS'\cf4 ,\cb1 \
+\cb3     \cf10 'ON_AD'\cf2 :\cf4  \cf10 'ON_AD'\cf4 ,\cb1 \
+\cb3     \cf10 'NONE'\cf2 :\cf4  \cf10 'WEBSITE'\cf4   
+\f2\i // Varsay\uc0\u305 lan
+\f0\i0 \cb1 \
+\cb3   \};\cb1 \
+\cb3   \cf6 return\cf4  \cf9 mapping\cf2 [convLoc\cf4 .\cf7 toUpperCase\cf4 ()\cf2 ]\cf4  \cf2 ||\cf4  \cf10 'WEBSITE'\cf4 ;\cb1 \
+\cb3 \}\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 2: Instagram Positions - "stream" vs "feed" Hatas\uc0\u305 \cf4 \cb1 \
+\cf5 \cb3 **Hata:**\cf4  "Invalid feed value for the instagram_positions placement field"\cb1 \
+\
+\cf2 \cb3 #### Neden:\cf4 \cb1 \
+\cb3 Meta API v23.0'da Instagram positions i\'e7in \cf10 `stream`\cf4  de\uc0\u287 eri \cf10 `feed`\cf4  olarak de\uc0\u287 i\u351 ti.\cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm:\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+
+\f2\i \cb3 // Eski (YANLI\uc0\u350 )
+\f0\i0 \cb1 \
+\cb3 instagram_positions: \cf2 [\cf10 'stream'\cf4 , \cf10 'story'\cf4 , \cf10 'reels'\cf2 ]\cf4 \cb1 \
+\
+
+\f2\i \cb3 // Yeni (DO\uc0\u286 RU)
+\f0\i0 \cb1 \
+\cb3 instagram_positions: \cf2 [\cf10 'feed'\cf4 , \cf10 'story'\cf4 , \cf10 'reels'\cf2 ]\cf4 \cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 3: TRY \uc0\u8594  Kuru\u351  D\'f6n\'fc\u351 \'fcm\'fc\cf4 \cb1 \
+\cf5 \cb3 **Meta API:**\cf4  B\'fct\'e7e kuru\uc0\u351  (cent) cinsinden beklenir\cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm:\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+\cf6 \cb3 function\cf4  \cf7 convertToKurus\cf4 (
+\f2\i \cf2 tryAmount
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 tryAmount\cf4  \cf2 ===\cf4  \cf10 ''\cf4  \cf2 ||\cf4  \cf9 tryAmount\cf4  \cf2 ==\cf4  null) \cf6 return\cf4  null;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 num\cf4  \cf2 =\cf4  \cf7 parseFloat\cf4 (\cf9 tryAmount\cf4 );\cb1 \
+\cb3   \cf6 if\cf4  (\cf7 isNaN\cf4 (\cf9 num\cf4 ) \cf2 ||\cf4  \cf9 num\cf4  \cf2 <\cf4  \cf7 1\cf4 ) \cf6 return\cf4  null;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 kurus\cf4  \cf2 =\cf4  \cf2 Math\cf4 .\cf7 round\cf4 (\cf9 num\cf4  \cf2 *\cf4  \cf7 100\cf4 );\cb1 \
+\cb3   
+\f2\i // Minimum 100 TRY = 10000 kuru\uc0\u351 
+\f0\i0 \cb1 \
+\cb3   \cf6 return\cf4  \cf9 kurus\cf4  \cf2 >=\cf4  \cf7 10000\cf4  \cf6 ?\cf4  \cf7 String\cf4 (\cf9 kurus\cf4 ) \cf6 :\cf4  \cf10 '10000'\cf4 ;\cb1 \
+\cb3 \}\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 4: Excel Tarih \uc0\u8594  ISO 8601 D\'f6n\'fc\u351 \'fcm\'fc\cf4 \cb1 \
+\cf5 \cb3 **Sheet'te:**\cf4  Excel serial number (\'f6rn: 45678)  \cb1 \
+\cf5 \cb3 **API'de:**\cf4  ISO 8601 format (\'f6rn: 2025-01-05T00:00:00Z)\cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm:\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+\cf6 \cb3 function\cf4  \cf7 convertExcelDateToISO\cf4 (
+\f2\i \cf2 excelDate
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf2 !\cf9 excelDate\cf4  \cf2 ||\cf4  \cf9 excelDate\cf4  \cf2 ===\cf4  \cf10 ''\cf4 ) \cf6 return\cf4  \cf10 ''\cf4 ;\cb1 \
+\cb3   \cf6 if\cf4  (\cf6 typeof\cf4  \cf9 excelDate\cf4  \cf2 ===\cf4  \cf10 'string'\cf4  \cf2 &&\cf4  \cf2 excelDate\cf4 .\cf7 includes\cf4 (\cf10 'T'\cf4 )) \cf6 return\cf4  \cf9 excelDate\cf4 ;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 num\cf4  \cf2 =\cf4  \cf7 Number\cf4 (\cf9 excelDate\cf4 );\cb1 \
+\cb3   \cf6 if\cf4  (\cf7 isNaN\cf4 (\cf9 num\cf4 )) \cf6 return\cf4  \cf10 ''\cf4 ;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 epochStart\cf4  \cf2 =\cf4  \cf2 Date\cf4 .\cf7 UTC\cf4 (\cf7 1899\cf4 , \cf7 11\cf4 , \cf7 30\cf4 );\cb1 \
+\cb3   \cf6 const\cf4  \cf8 millisPerDay\cf4  \cf2 =\cf4  \cf7 86400000\cf4 ;\cb1 \
+\cb3   \cf6 return\cf4  \cf6 new\cf4  \cf7 Date\cf4 (\cf9 epochStart\cf4  \cf2 +\cf4  \cf9 num\cf4  \cf2 *\cf4  \cf9 millisPerDay\cf4 ).\cf7 toISOString\cf4 ();\cb1 \
+\cb3 \}\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 5: Data Flow Kayb\uc0\u305  ($itemIndex Matching)\cf4 \cb1 \
+\cf5 \cb3 **Problem:**\cf4  HTTP Request node'lar\uc0\u305  sonras\u305 nda orijinal row bilgisi kayboluyor\cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm:\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+
+\f2\i \cb3 // Her node'da $input.itemIndex kullanarak orijinal data'y\uc0\u305  koru
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 currentIndex\cf4  \cf2 =\cf4  \cf2 $input\cf4 .\cf8 itemIndex\cf4 ;\cb1 \
+\cf6 \cb3 const\cf4  \cf8 originalData\cf4  \cf2 =\cf4  \cf7 $\cf4 (\cf10 'Mapping'\cf4 ).\cf7 all\cf4 ()\cf2 [\cf9 currentIndex\cf2 ]\cf4 ?.\cf8 json\cf4  \cf2 ||\cf4  \{\};\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 6: promoted_object Eksikli\uc0\u287 i\cf4 \cb1 \
+\cf5 \cb3 **Baz\uc0\u305  destination_type'lar i\'e7in zorunlu**\cf4 \cb1 \
+\
+\cf2 \cb3 #### \'c7\'f6z\'fcm:\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+\cf6 \cb3 function\cf4  \cf7 buildPromotedObject\cf4 (
+\f2\i \cf2 destType
+\f0\i0 \cf4 , 
+\f2\i \cf2 pageId
+\f0\i0 \cf4 , 
+\f2\i \cf2 pixelId
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 switch\cf4  (\cf9 destType\cf4 ) \{\cb1 \
+\cb3     \cf6 case\cf4  \cf10 'PHONE_CALL'\cf4 :\cb1 \
+\cb3       \cf6 return\cf4  \{ \cf2 page_id:\cf4  \cf9 pageId\cf4  \};\cb1 \
+\cb3     \cf6 case\cf4  \cf10 'WEBSITE'\cf4 :\cb1 \
+\cb3       \cf6 return\cf4  \cf9 pixelId\cf4  \cf6 ?\cf4  \{ \cf2 pixel_id:\cf4  \cf9 pixelId\cf4 , \cf2 custom_event_type:\cf4  \cf10 'OTHER'\cf4  \} \cf6 :\cf4  null;\cb1 \
+\cb3     \cf6 case\cf4  \cf10 'ON_AD'\cf4 :\cb1 \
+\cb3       \cf6 return\cf4  \{ \cf2 page_id:\cf4  \cf9 pageId\cf4  \};\cb1 \
+\cb3     \cf6 default\cf4 :\cb1 \
+\cb3       \cf6 return\cf4  null;\cb1 \
+\cb3   \}\cb1 \
+\cb3 \}\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ### SORUN 7: Code Node'larda Eksik Validasyonlar\cf4 \cb1 \
+\
+\cf2 \cb3 #### "Build Final Ad Body (CBO)" ve "Build Final Ad Body (ABO)" node'lar\uc0\u305 nda eksik kontroller:\cf4 \cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  billing_event kontrol\'fc YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  optimization_goal kontrol\'fc YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  destination_type mapping YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  Phone call destination kontrol\'fc YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  promoted_object olu\uc0\u351 turma YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  Instagram positions d\'fczeltmesi YOK\cb1 \
+\cf2 \cb3 -\cf4  
+\f1 \uc0\u10060 
+\f0  TRY to kuru\uc0\u351  d\'f6n\'fc\u351 \'fcm\'fc YOK\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u57056 \u65039 
+\f0  TAM D\'dcZELTME GEREKT\uc0\u304 REN NODE'LAR\cf4 \cb1 \
+\
+\cf2 \cb3 ### 1. Build Final Ad Set Body (CBO i\'e7in)\cf4 \cb1 \
+\cb3 ```javascript\cb1 \
+
+\f2\i \cb3 /**
+\f0\i0 \cb1 \
+
+\f2\i \cb3  * Build Final Ad Set Body - COMPLETE FIX
+\f0\i0 \cb1 \
+
+\f2\i \cb3  * CBO Mode: Budget at campaign level, no daily_budget here
+\f0\i0 \cb1 \
+
+\f2\i \cb3  */
+\f0\i0 \cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 clean\cf4 (
+\f2\i \cf2 v
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf6 typeof\cf4  \cf9 v\cf4  \cf2 !==\cf4  \cf10 'string'\cf4 ) \cf6 return\cf4  \cf9 v\cf4  \cf2 ==\cf4  null \cf6 ?\cf4  \cf10 ''\cf4  \cf6 :\cf4  \cf7 String\cf4 (\cf9 v\cf4 );\cb1 \
+\cb3   \cf6 return\cf4  \cf2 v\cf4 .\cf7 replace\cf4 (\cf10 /\cf2 \\u00A0\cf10 /\cf6 g\cf4 , \cf10 ' '\cf4 ).\cf7 replace\cf4 (\cf10 /\cf2 \\r\cf5 ?\cf2 \\n\cf10 /\cf6 g\cf4 , \cf10 ' '\cf4 ).\cf7 trim\cf4 ()\cb1 \
+\cb3     .\cf7 replace\cf4 (\cf10 /\cf6 ^\cf2 ="\\s\cf5 *\cf2 |\\s\cf5 *\cf2 "\cf6 $\cf10 /\cf6 g\cf4 , \cf10 ''\cf4 );\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 convertToKurus\cf4 (
+\f2\i \cf2 tryAmount
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 tryAmount\cf4  \cf2 ===\cf4  \cf10 ''\cf4  \cf2 ||\cf4  \cf9 tryAmount\cf4  \cf2 ==\cf4  null) \cf6 return\cf4  null;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 num\cf4  \cf2 =\cf4  \cf7 parseFloat\cf4 (\cf9 tryAmount\cf4 );\cb1 \
+\cb3   \cf6 if\cf4  (\cf7 isNaN\cf4 (\cf9 num\cf4 ) \cf2 ||\cf4  \cf9 num\cf4  \cf2 <\cf4  \cf7 1\cf4 ) \cf6 return\cf4  null;\cb1 \
+\cb3   \cf6 return\cf4  \cf2 Math\cf4 .\cf7 max\cf4 (\cf2 Math\cf4 .\cf7 round\cf4 (\cf9 num\cf4  \cf2 *\cf4  \cf7 100\cf4 ), \cf7 10000\cf4 );\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 convertExcelDateToISO\cf4 (
+\f2\i \cf2 excelDate
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf2 !\cf9 excelDate\cf4  \cf2 ||\cf4  \cf9 excelDate\cf4  \cf2 ===\cf4  \cf10 ''\cf4 ) \cf6 return\cf4  \cf10 ''\cf4 ;\cb1 \
+\cb3   \cf6 if\cf4  (\cf6 typeof\cf4  \cf9 excelDate\cf4  \cf2 ===\cf4  \cf10 'string'\cf4  \cf2 &&\cf4  \cf2 excelDate\cf4 .\cf7 includes\cf4 (\cf10 'T'\cf4 )) \cf6 return\cf4  \cf9 excelDate\cf4 ;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 num\cf4  \cf2 =\cf4  \cf7 Number\cf4 (\cf9 excelDate\cf4 );\cb1 \
+\cb3   \cf6 if\cf4  (\cf7 isNaN\cf4 (\cf9 num\cf4 )) \cf6 return\cf4  \cf10 ''\cf4 ;\cb1 \
+\cb3   \cf6 return\cf4  \cf6 new\cf4  \cf7 Date\cf4 (\cf2 Date\cf4 .\cf7 UTC\cf4 (\cf7 1899\cf4 , \cf7 11\cf4 , \cf7 30\cf4 ) \cf2 +\cf4  \cf9 num\cf4  \cf2 *\cf4  \cf7 86400000\cf4 ).\cf7 toISOString\cf4 ();\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 mapConversionToDestination\cf4 (
+\f2\i \cf2 convLoc
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 const\cf4  \cf8 mapping\cf4  \cf2 =\cf4  \{\cb1 \
+\cb3     \cf10 'WEBSITE'\cf2 :\cf4  \cf10 'WEBSITE'\cf4 ,\cb1 \
+\cb3     \cf10 'CALLS'\cf2 :\cf4  \cf10 'PHONE_CALL'\cf4 ,\cb1 \
+\cb3     \cf10 'MESSAGING'\cf2 :\cf4  \cf10 'MESSAGING_APPS'\cf4 ,\cb1 \
+\cb3     \cf10 'ON_AD'\cf2 :\cf4  \cf10 'ON_AD'\cf4 \cb1 \
+\cb3   \};\cb1 \
+\cb3   \cf6 return\cf4  \cf9 mapping\cf2 [\cf7 clean\cf4 (\cf9 convLoc\cf4 ).\cf7 toUpperCase\cf4 ()\cf2 ]\cf4  \cf2 ||\cf4  \cf10 'WEBSITE'\cf4 ;\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 validateApiParams\cf4 (
+\f2\i \cf2 destType
+\f0\i0 \cf4 , 
+\f2\i \cf2 billingEvent
+\f0\i0 \cf4 , 
+\f2\i \cf2 optGoal
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   
+\f2\i // PHONE_CALL zorunlu d\'fczeltmeler
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'PHONE_CALL'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf10 'IMPRESSIONS'\cf4 ,\cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf10 'QUALITY_CALL'\cf4 ,\cb1 \
+\cb3       \cf2 forceFacebookOnly:\cf4  true\cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // MESSAGING zorunlu d\'fczeltmeler
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'MESSAGING_APPS'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf10 'IMPRESSIONS'\cf4 ,\cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf10 'CONVERSATIONS'\cf4 ,\cb1 \
+\cb3       \cf2 forceFacebookOnly:\cf4  false\cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // Ge\'e7ersiz billing_event d\'fczeltmeleri
+\f0\i0 \cb1 \
+\cb3   \cf6 const\cf4  \cf8 validBillingEvents\cf4  \cf2 =\cf4  \cf2 [\cf10 'IMPRESSIONS'\cf4 , \cf10 'LINK_CLICKS'\cf4 , \cf10 'APP_INSTALLS'\cf4 , \cf10 'THRUPLAY'\cf2 ]\cf4 ;\cb1 \
+\cb3   \cf6 if\cf4  (\cf2 !validBillingEvents\cf4 .\cf7 includes\cf4 (\cf9 billingEvent\cf4 )) \{\cb1 \
+\cb3     \cf6 return\cf4  \{\cb1 \
+\cb3       \cf2 billing_event:\cf4  \cf10 'IMPRESSIONS'\cf4 ,\cb1 \
+\cb3       \cf2 optimization_goal:\cf4  \cf9 optGoal\cf4 ,\cb1 \
+\cb3       \cf2 forceFacebookOnly:\cf4  false\cb1 \
+\cb3     \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 return\cf4  \{ \cf2 billing_event:\cf4  \cf9 billingEvent\cf4 , \cf2 optimization_goal:\cf4  \cf9 optGoal\cf4 , \cf2 forceFacebookOnly:\cf4  false \};\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 buildTargeting\cf4 (
+\f2\i \cf2 row
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 const\cf4  \cf8 ageMin\cf4  \cf2 =\cf4  \cf2 Math\cf4 .\cf7 max\cf4 (\cf7 13\cf4 , \cf2 Math\cf4 .\cf7 min\cf4 (\cf7 65\cf4 , \cf7 parseInt\cf4 (\cf7 clean\cf4 (\cf2 row\cf4 .\cf8 age_min\cf4  \cf2 ||\cf4  \cf9 row\cf2 [\cf10 'Age_Min'\cf2 ]\cf4 )) \cf2 ||\cf4  \cf7 18\cf4 ));\cb1 \
+\cb3   \cf6 const\cf4  \cf8 ageMax\cf4  \cf2 =\cf4  \cf2 Math\cf4 .\cf7 max\cf4 (\cf9 ageMin\cf4 , \cf2 Math\cf4 .\cf7 min\cf4 (\cf7 65\cf4 , \cf7 parseInt\cf4 (\cf7 clean\cf4 (\cf2 row\cf4 .\cf8 age_max\cf4  \cf2 ||\cf4  \cf9 row\cf2 [\cf10 'Age_Max'\cf2 ]\cf4 )) \cf2 ||\cf4  \cf7 65\cf4 ));\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 return\cf4  \{\cb1 \
+\cb3     \cf2 geo_locations:\cf4  \{ \cf2 countries:\cf4  \cf2 [\cf10 'TR'\cf2 ]\cf4  \},\cb1 \
+\cb3     \cf2 age_min:\cf4  \cf9 ageMin\cf4 ,\cb1 \
+\cb3     \cf2 age_max:\cf4  \cf9 ageMax\cf4 \cb1 \
+\cb3   \};\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 buildPublisherPlatforms\cf4 (
+\f2\i \cf2 platform
+\f0\i0 \cf4 , 
+\f2\i \cf2 forceFacebookOnly
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 forceFacebookOnly\cf4 ) \cf6 return\cf4  \cf2 [\cf10 'facebook'\cf2 ]\cf4 ;\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 const\cf4  \cf8 p\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 platform\cf4 ).\cf7 toLowerCase\cf4 ();\cb1 \
+\cb3   \cf6 if\cf4  (\cf2 p\cf4 .\cf7 includes\cf4 (\cf10 'both'\cf4 ) \cf2 ||\cf4  (\cf2 p\cf4 .\cf7 includes\cf4 (\cf10 'facebook'\cf4 ) \cf2 &&\cf4  \cf2 p\cf4 .\cf7 includes\cf4 (\cf10 'instagram'\cf4 ))) \{\cb1 \
+\cb3     \cf6 return\cf4  \cf2 [\cf10 'facebook'\cf4 , \cf10 'instagram'\cf2 ]\cf4 ;\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf6 if\cf4  (\cf2 p\cf4 .\cf7 includes\cf4 (\cf10 'instagram'\cf4 )) \cf6 return\cf4  \cf2 [\cf10 'instagram'\cf2 ]\cf4 ;\cb1 \
+\cb3   \cf6 return\cf4  \cf2 [\cf10 'facebook'\cf2 ]\cf4 ;\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 buildPositions\cf4 (
+\f2\i \cf2 placements
+\f0\i0 \cf4 , 
+\f2\i \cf2 publishers
+\f0\i0 \cf4 , 
+\f2\i \cf2 forceFacebookOnly
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 const\cf4  \cf8 fb\cf4  \cf2 =\cf4  \cf2 []\cf4 ;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 ig\cf4  \cf2 =\cf4  \cf2 []\cf4 ;\cb1 \
+\cb3   \cf6 const\cf4  \cf8 placementStr\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 placements\cf4 ).\cf7 toLowerCase\cf4 ();\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 if\cf4  (\cf9 placementStr\cf4  \cf2 ===\cf4  \cf10 'auto'\cf4  \cf2 ||\cf4  \cf2 !\cf9 placementStr\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{ \cf2 facebook_positions:\cf4  null, \cf2 instagram_positions:\cf4  null \}; 
+\f2\i // Auto placement
+\f0\i0 \cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // Facebook positions
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf2 publishers\cf4 .\cf7 includes\cf4 (\cf10 'facebook'\cf4 )) \{\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'facebook feed'\cf4 )) \cf2 fb\cf4 .\cf7 push\cf4 (\cf10 'feed'\cf4 );\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'facebook stories'\cf4 )) \cf2 fb\cf4 .\cf7 push\cf4 (\cf10 'story'\cf4 );\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'facebook reels'\cf4 )) \cf2 fb\cf4 .\cf7 push\cf4 (\cf10 'reels'\cf4 );\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 fb\cf4 .\cf8 length\cf4  \cf2 ===\cf4  \cf7 0\cf4 ) \cf2 fb\cf4 .\cf7 push\cf4 (\cf10 'feed'\cf4 );\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   
+\f2\i // Instagram positions (skip if PHONE_CALL)
+\f0\i0 \cb1 \
+\cb3   \cf6 if\cf4  (\cf2 publishers\cf4 .\cf7 includes\cf4 (\cf10 'instagram'\cf4 ) \cf2 &&\cf4  \cf2 !\cf9 forceFacebookOnly\cf4 ) \{\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'instagram feed'\cf4 )) \cf2 ig\cf4 .\cf7 push\cf4 (\cf10 'feed'\cf4 );  
+\f2\i // NOT 'stream'!
+\f0\i0 \cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'instagram stories'\cf4 )) \cf2 ig\cf4 .\cf7 push\cf4 (\cf10 'story'\cf4 );\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 placementStr\cf4 .\cf7 includes\cf4 (\cf10 'instagram reels'\cf4 )) \cf2 ig\cf4 .\cf7 push\cf4 (\cf10 'reels'\cf4 );\cb1 \
+\cb3     \cf6 if\cf4  (\cf2 ig\cf4 .\cf8 length\cf4  \cf2 ===\cf4  \cf7 0\cf4 ) \cf2 ig\cf4 .\cf7 push\cf4 (\cf10 'feed'\cf4 );\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cb1 \
+\cb3   \cf6 return\cf4  \{\cb1 \
+\cb3     \cf2 facebook_positions:\cf4  \cf2 fb\cf4 .\cf8 length\cf4  \cf2 >\cf4  \cf7 0\cf4  \cf6 ?\cf4  \cf9 fb\cf4  \cf6 :\cf4  null,\cb1 \
+\cb3     \cf2 instagram_positions:\cf4  \cf2 ig\cf4 .\cf8 length\cf4  \cf2 >\cf4  \cf7 0\cf4  \cf6 ?\cf4  \cf9 ig\cf4  \cf6 :\cf4  null\cb1 \
+\cb3   \};\cb1 \
+\cb3 \}\cb1 \
+\
+\cf6 \cb3 function\cf4  \cf7 buildPromotedObject\cf4 (
+\f2\i \cf2 destType
+\f0\i0 \cf4 , 
+\f2\i \cf2 pageId
+\f0\i0 \cf4 , 
+\f2\i \cf2 pixelId
+\f0\i0 \cf4 ) \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'PHONE_CALL'\cf4  \cf2 ||\cf4  \cf9 destType\cf4  \cf2 ===\cf4  \cf10 'ON_AD'\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \cf9 pageId\cf4  \cf6 ?\cf4  \{ \cf2 page_id:\cf4  \cf9 pageId\cf4  \} \cf6 :\cf4  null;\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 destType\cf4  \cf2 ===\cf4  \cf10 'WEBSITE'\cf4  \cf2 &&\cf4  \cf9 pixelId\cf4 ) \{\cb1 \
+\cb3     \cf6 return\cf4  \{ \cf2 pixel_id:\cf4  \cf9 pixelId\cf4 , \cf2 custom_event_type:\cf4  \cf10 'OTHER'\cf4  \};\cb1 \
+\cb3   \}\cb1 \
+\cb3   \cf6 return\cf4  null;\cb1 \
+\cb3 \}\cb1 \
+\
+
+\f2\i \cb3 // MAIN EXECUTION
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 row\cf4  \cf2 =\cf4  \cf2 item\cf4 .\cf8 json\cf4  \cf2 ||\cf4  \{\};\cb1 \
+\cf6 \cb3 const\cf4  \cf8 prevNode\cf4  \cf2 =\cf4  \cf7 $\cf4 (\cf10 'Camp. ID'\cf4 ).\cf7 all\cf4 ()\cf2 [$input\cf4 .\cf8 itemIndex\cf2 ]\cf4 ?.\cf8 json\cf4  \cf2 ||\cf4  \{\};\cb1 \
+\cf6 \cb3 const\cf4  \cf8 campaignId\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf2 prevNode\cf4 .\cf8 campaign_id\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 campaign_id\cf4  \cf2 ||\cf4  \cf10 ''\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 accountId\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf2 row\cf4 .\cf8 account_id\cf4  \cf2 ||\cf4  \cf9 row\cf2 [\cf10 'Account ID'\cf2 ]\cf4  \cf2 ||\cf4  \cf10 ''\cf4 );\cb1 \
+\
+
+\f2\i \cb3 // Get raw values
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 adsetName\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Ad Set Name'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 adset_name\cf4  \cf2 ||\cf4  \cf10 `AdSet-\cf6 $\{\cf2 Date.\cf7 now\cf2 ()\cf6 \}\cf10 `\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 status\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Status (Ad Set)'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 status_adset\cf4  \cf2 ||\cf4  \cf10 'PAUSED'\cf4 ).\cf7 toUpperCase\cf4 ();\cb1 \
+\cf6 \cb3 const\cf4  \cf8 convLoc\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Conversion Location'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 conversion_location\cf4  \cf2 ||\cf4  \cf10 'WEBSITE'\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 billingEvent\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Billing Event'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 billing_event\cf4  \cf2 ||\cf4  \cf10 'IMPRESSIONS'\cf4 ).\cf7 toUpperCase\cf4 ();\cb1 \
+\cf6 \cb3 const\cf4  \cf8 optGoal\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Optimization Goal'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 optimization_goal\cf4  \cf2 ||\cf4  \cf10 'LINK_CLICKS'\cf4 ).\cf7 toUpperCase\cf4 ();\cb1 \
+\cf6 \cb3 const\cf4  \cf8 platform\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Platform'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 platform\cf4  \cf2 ||\cf4  \cf10 'Facebook'\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 placements\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Placements'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 placement\cf4  \cf2 ||\cf4  \cf10 'AUTO'\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 bidStrategy\cf4  \cf2 =\cf4  \cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Bid Strategy'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 bid_strategy\cf4  \cf2 ||\cf4  \cf10 'LOWEST_COST_WITHOUT_CAP'\cf4 ).\cf7 toUpperCase\cf4 ();\cb1 \
+\cf6 \cb3 const\cf4  \cf8 pageId\cf4  \cf2 =\cf4  \cf7 String\cf4 (\cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'FB Page_ID'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 fb_page_id\cf4  \cf2 ||\cf4  \cf10 ''\cf4 )).\cf7 replace\cf4 (\cf10 /\cf2 \\D\cf10 /\cf6 g\cf4 , \cf10 ''\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 pixelId\cf4  \cf2 =\cf4  \cf7 String\cf4 (\cf7 clean\cf4 (\cf9 row\cf2 [\cf10 'Pixel_ID'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 pixel_id\cf4  \cf2 ||\cf4  \cf10 ''\cf4 )).\cf7 replace\cf4 (\cf10 /\cf2 \\D\cf10 /\cf6 g\cf4 , \cf10 ''\cf4 );\cb1 \
+\
+
+\f2\i \cb3 // Map and validate
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 destType\cf4  \cf2 =\cf4  \cf7 mapConversionToDestination\cf4 (\cf9 convLoc\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 validated\cf4  \cf2 =\cf4  \cf7 validateApiParams\cf4 (\cf9 destType\cf4 , \cf9 billingEvent\cf4 , \cf9 optGoal\cf4 );\cb1 \
+\
+
+\f2\i \cb3 // Build components
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 publishers\cf4  \cf2 =\cf4  \cf7 buildPublisherPlatforms\cf4 (\cf9 platform\cf4 , \cf2 validated\cf4 .\cf8 forceFacebookOnly\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 positions\cf4  \cf2 =\cf4  \cf7 buildPositions\cf4 (\cf9 placements\cf4 , \cf9 publishers\cf4 , \cf2 validated\cf4 .\cf8 forceFacebookOnly\cf4 );\cb1 \
+\cf6 \cb3 const\cf4  \cf8 targeting\cf4  \cf2 =\cf4  \cf7 buildTargeting\cf4 (\cf9 row\cf4 );\cb1 \
+\cf2 \cb3 targeting\cf4 .\cf8 publisher_platforms\cf4  \cf2 =\cf4  \cf9 publishers\cf4 ;\cb1 \
+\cf6 \cb3 if\cf4  (\cf2 positions\cf4 .\cf8 facebook_positions\cf4 ) \cf2 targeting\cf4 .\cf8 facebook_positions\cf4  \cf2 =\cf4  \cf2 positions\cf4 .\cf8 facebook_positions\cf4 ;\cb1 \
+\cf6 \cb3 if\cf4  (\cf2 positions\cf4 .\cf8 instagram_positions\cf4 ) \cf2 targeting\cf4 .\cf8 instagram_positions\cf4  \cf2 =\cf4  \cf2 positions\cf4 .\cf8 instagram_positions\cf4 ;\cb1 \
+\
+\cf6 \cb3 const\cf4  \cf8 promotedObject\cf4  \cf2 =\cf4  \cf7 buildPromotedObject\cf4 (\cf9 destType\cf4 , \cf9 pageId\cf4 , \cf9 pixelId\cf4 );\cb1 \
+\
+
+\f2\i \cb3 // Build final body
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 finalBody\cf4  \cf2 =\cf4  \{\cb1 \
+\cb3   \cf2 name:\cf4  \cf9 adsetName\cf4 ,\cb1 \
+\cb3   \cf2 campaign_id:\cf4  \cf9 campaignId\cf4 ,\cb1 \
+\cb3   \cf2 status:\cf4  \cf2 [\cf10 'ACTIVE'\cf4 , \cf10 'PAUSED'\cf4 , \cf10 'DELETED'\cf2 ]\cf4 .\cf7 includes\cf4 (\cf9 status\cf4 ) \cf6 ?\cf4  \cf9 status\cf4  \cf6 :\cf4  \cf10 'PAUSED'\cf4 ,\cb1 \
+\cb3   \cf2 billing_event:\cf4  \cf2 validated\cf4 .\cf8 billing_event\cf4 ,\cb1 \
+\cb3   \cf2 optimization_goal:\cf4  \cf2 validated\cf4 .\cf8 optimization_goal\cf4 ,\cb1 \
+\cb3   \cf2 bid_strategy:\cf4  \cf9 bidStrategy\cf4 ,\cb1 \
+\cb3   \cf2 destination_type:\cf4  \cf9 destType\cf4 ,\cb1 \
+\cb3   \cf2 targeting:\cf4  \cf9 targeting\cf4 ,\cb1 \
+\cb3   \cf2 start_time:\cf4  \cf7 convertExcelDateToISO\cf4 (\cf9 row\cf2 [\cf10 'Start Date'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 start_time\cf4 ),\cb1 \
+\cb3   \cf2 end_time:\cf4  \cf7 convertExcelDateToISO\cf4 (\cf9 row\cf2 [\cf10 'End Date'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 end_time\cf4 )\cb1 \
+\cb3 \};\cb1 \
+\
+
+\f2\i \cb3 // CBO: NO daily_budget at adset level
+\f0\i0 \cb1 \
+
+\f2\i \cb3 // Add promoted_object if exists
+\f0\i0 \cb1 \
+\cf6 \cb3 if\cf4  (\cf9 promotedObject\cf4 ) \cf2 finalBody\cf4 .\cf8 promoted_object\cf4  \cf2 =\cf4  \cf9 promotedObject\cf4 ;\cb1 \
+\
+
+\f2\i \cb3 // Clean undefined/null values
+\f0\i0 \cb1 \
+\cf2 \cb3 Object\cf4 .\cf7 keys\cf4 (\cf9 finalBody\cf4 ).\cf7 forEach\cf4 (
+\f2\i \cf2 k
+\f0\i0 \cf4  \cf6 =>\cf4  \{\cb1 \
+\cb3   \cf6 if\cf4  (\cf9 finalBody\cf2 [\cf9 k\cf2 ]\cf4  \cf2 ===\cf4  \cf10 ''\cf4  \cf2 ||\cf4  \cf9 finalBody\cf2 [\cf9 k\cf2 ]\cf4  \cf2 ==\cf4  null) \cf6 delete\cf4  \cf9 finalBody\cf2 [\cf9 k\cf2 ]\cf4 ;\cb1 \
+\cb3 \});\cb1 \
+\
+\cf2 \cb3 item\cf4 .\cf2 json\cf4 .\cf8 _finalBody\cf4  \cf2 =\cf4  \cf9 finalBody\cf4 ;\cb1 \
+\cf2 \cb3 item\cf4 .\cf2 json\cf4 .\cf8 account_id\cf4  \cf2 =\cf4  \cf9 accountId\cf4 ;\cb1 \
+\cf2 \cb3 item\cf4 .\cf2 json\cf4 .\cf8 campaign_id\cf4  \cf2 =\cf4  \cf9 campaignId\cf4 ;\cb1 \
+\cf2 \cb3 item\cf4 .\cf2 json\cf4 .\cf8 _debug\cf4  \cf2 =\cf4  \{\cb1 \
+\cb3   \cf9 destType\cf4 ,\cb1 \
+\cb3   \cf9 validated\cf4 ,\cb1 \
+\cb3   \cf9 publishers\cf4 ,\cb1 \
+\cb3   \cf9 positions\cf4 \cb1 \
+\cb3 \};\cb1 \
+\
+\cf6 \cb3 return\cf4  \cf9 item\cf4 ;\cb1 \
+\cb3 ```\cb1 \
+\
+\cf2 \cb3 ### 2. Build Final Ad Set Body1 (ABO i\'e7in)\cf4 \cb1 \
+\cb3 ABO'da tek fark: \cf10 `daily_budget`\cf4  adset seviyesinde eklenir:\cb1 \
+\cb3 ```javascript\cb1 \
+
+\f2\i \cb3 // CBO kodunun ayn\uc0\u305 s\u305  + \u351 u ekleme:
+\f0\i0 \cb1 \
+\cf6 \cb3 const\cf4  \cf8 dailyBudget\cf4  \cf2 =\cf4  \cf7 convertToKurus\cf4 (\cf9 row\cf2 [\cf10 'Ad Set Budget'\cf2 ]\cf4  \cf2 ||\cf4  \cf2 row\cf4 .\cf8 daily_budget\cf4 );\cb1 \
+\cf6 \cb3 if\cf4  (\cf9 dailyBudget\cf4 ) \cf2 finalBody\cf4 .\cf8 daily_budget\cf4  \cf2 =\cf4  \cf9 dailyBudget\cf4 ;\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56524 
+\f0  META API UPDATE ED\uc0\u304 LEB\u304 L\u304 R ALANLAR\cf4 \cb1 \
+\
+\cf2 \cb3 ### Campaign UPDATE (Sadece bunlar de\uc0\u287 i\u351 tirilebilir):\cf4 \cb1 \
+\cf2 \cb3 -\cf4  name\cb1 \
+\cf2 \cb3 -\cf4  status\cb1 \
+\cf2 \cb3 -\cf4  daily_budget (CBO)\cb1 \
+\cf2 \cb3 -\cf4  lifetime_budget\cb1 \
+\
+\cf2 \cb3 ### Ad Set UPDATE (Sadece bunlar de\uc0\u287 i\u351 tirilebilir):\cf4 \cb1 \
+\cf2 \cb3 -\cf4  name\cb1 \
+\cf2 \cb3 -\cf4  status\cb1 \
+\cf2 \cb3 -\cf4  daily_budget (ABO)\cb1 \
+\cf2 \cb3 -\cf4  start_time\cb1 \
+\cf2 \cb3 -\cf4  end_time\cb1 \
+\
+\cf5 \cb3 **
+\f1 \uc0\u9888 \u65039 
+\f0  DE\uc0\u286 \u304 \u350 T\u304 R\u304 LEMEZ:**\cf4  billing_event, optimization_goal, destination_type, targeting, bid_strategy\cb1 \
+\
+\cf2 \cb3 ### Ad UPDATE:\cf4 \cb1 \
+\cf2 \cb3 -\cf4  name\cb1 \
+\cf2 \cb3 -\cf4  status\cb1 \
+\cf2 \cb3 -\cf4  creative (yeni ad creative olu\uc0\u351 turulmal\u305 )\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56599 
+\f0  API ENDPOINT'LERI (v23.0)\cf4 \cb1 \
+\
+\cb3 ```\cb1 \
+\cb3 CREATE:\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/act_\{account_id\}/campaigns\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/act_\{account_id\}/adsets\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/act_\{account_id\}/adcreatives\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/act_\{account_id\}/ads\cb1 \
+\
+\cb3 UPDATE:\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/\{campaign_id\}\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/\{adset_id\}\cb1 \
+\cb3 POST https://graph.facebook.com/v23.0/\{ad_id\}\cb1 \
+\
+\cb3 READ (Sync i\'e7in):\cb1 \
+\cb3 GET https://graph.facebook.com/v23.0/\{ad_id\}?fields=name,status,creative\{object_story_spec,...\}\cb1 \
+\cb3 ```\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u9989 
+\f0  \'c7\'d6Z\'dcM UYGULAMA ADIMLARI\cf4 \cb1 \
+\
+\cf2 \cb3 ### Ad\uc0\u305 m 1: Environment Variable\cf4 \cb1 \
+\cb3 ```\cb1 \
+\cb3 META_ACCESS_TOKEN = [your_token_here]\cb1 \
+\cb3 ```\cb1 \
+\
+\cf2 \cb3 ### Ad\uc0\u305 m 2: D\'fczeltilmesi Gereken Code Node'lar\cf4 \cb1 \
+\cf2 \cb3 1.\cf4  \cf5 **Build Final Ad Set Body**\cf4  - Tam yeniden yaz\uc0\u305 lacak (yukar\u305 daki kod)\cb1 \
+\cf2 \cb3 2.\cf4  \cf5 **Build Final Ad Set Body1**\cf4  - Tam yeniden yaz\uc0\u305 lacak (ABO versiyonu)\cb1 \
+\cf2 \cb3 3.\cf4  \cf5 **Build Final Ad Body (CBO)**\cf4  - destination_type kontrol\'fc eklenecek\cb1 \
+\cf2 \cb3 4.\cf4  \cf5 **Build Final Ad Body (ABO)**\cf4  - destination_type kontrol\'fc eklenecek\cb1 \
+\cf2 \cb3 5.\cf4  \cf5 **Input Validation**\cf4  - billing_event/optimization_goal \'e7ift kontrol\'fc eklenecek\cb1 \
+\
+\cf2 \cb3 ### Ad\uc0\u305 m 3: Google Sheets Veri D\'fczeltmeleri\cf4 \cb1 \
+\cb3 Ge\'e7ersiz kombinasyonlar\uc0\u305  d\'fczeltin:\cb1 \
+\cf2 \cb3 -\cf4  CALLS + LINK_CLICKS \uc0\u8594  CALLS + IMPRESSIONS + QUALITY_CALL\cb1 \
+\cf2 \cb3 -\cf4  MESSAGING + LINK_CLICKS \uc0\u8594  MESSAGING + IMPRESSIONS + CONVERSATIONS\cb1 \
+\cf2 \cb3 -\cf4  REACH (Billing Event olarak) \uc0\u8594  IMPRESSIONS\cb1 \
+\cf2 \cb3 -\cf4  CLICKS \uc0\u8594  LINK_CLICKS veya IMPRESSIONS\cb1 \
+\cf2 \cb3 -\cf4  NONE (Conversion Location) \uc0\u8594  WEBSITE\cb1 \
+\
+\cf2 \cb3 ### Ad\uc0\u305 m 4: Test Senaryolar\u305 \cf4 \cb1 \
+\cf2 \cb3 1.\cf4  CBO + WEBSITE + LINK_CLICKS \uc0\u8594  
+\f1 \uc0\u9989 
+\f0  \'c7al\uc0\u305 \u351 mal\u305 \cb1 \
+\cf2 \cb3 2.\cf4  ABO + WEBSITE + LINK_CLICKS \uc0\u8594  
+\f1 \uc0\u9989 
+\f0  \'c7al\uc0\u305 \u351 mal\u305 \cb1 \
+\cf2 \cb3 3.\cf4  CBO + CALLS + QUALITY_CALL \uc0\u8594  
+\f1 \uc0\u9989 
+\f0  Sadece Facebook'ta \'e7al\uc0\u305 \u351 mal\u305 \cb1 \
+\cf2 \cb3 4.\cf4  ABO + MESSAGING + CONVERSATIONS \uc0\u8594  
+\f1 \uc0\u9989 
+\f0  \'c7al\uc0\u305 \u351 mal\u305 \cb1 \
+\cf2 \cb3 5.\cf4  CBO + ON_AD + LEAD_GENERATION \uc0\u8594  
+\f1 \uc0\u9989 
+\f0  \'c7al\uc0\u305 \u351 mal\u305 \cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55357 \u56538 
+\f0  REFERANSLAR\cf4 \cb1 \
+\
+\cf2 \cb3 -\cf4  Meta Marketing API: https://developers.facebook.com/docs/marketing-api\cb1 \
+\cf2 \cb3 -\cf4  Ad Set Create: https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation/create-an-ad-set\cb1 \
+\cf2 \cb3 -\cf4  Optimization Goals: https://developers.facebook.com/docs/marketing-api/bidding/overview\cb1 \
+\cf2 \cb3 -\cf4  Billing Events: https://developers.facebook.com/docs/marketing-api/reference/ad-set/\cb1 \
+\
+\cb3 ---\cb1 \
+\
+\cf2 \cb3 ## 
+\f1 \uc0\u55356 \u57263 
+\f0  BA\uc0\u350 ARI KR\u304 TERLER\u304 \cf4 \cb1 \
+\
+\cf2 \cb3 1.\cf4  
+\f1 \uc0\u9989 
+\f0  Hi\'e7bir API hatas\uc0\u305  olmadan kampanya olu\u351 turma\cb1 \
+\cf2 \cb3 2.\cf4  
+\f1 \uc0\u9989 
+\f0  CBO ve ABO modlar\uc0\u305  do\u287 ru \'e7al\u305 \u351 \u305 yor\cb1 \
+\cf2 \cb3 3.\cf4  
+\f1 \uc0\u9989 
+\f0  Update mod\'fcl\'fc sadece de\uc0\u287 i\u351 tirilebilir alanlar\u305  g\'fcncelliyor\cb1 \
+\cf2 \cb3 4.\cf4  
+\f1 \uc0\u9989 
+\f0  Sync mod\'fcl\'fc Meta'dan Sheet'e do\uc0\u287 ru veri \'e7ekiyor\cb1 \
+\cf2 \cb3 5.\cf4  
+\f1 \uc0\u9989 
+\f0  T\'fcm sat\uc0\u305 rlar i\'e7in Row No matching \'e7al\u305 \u351 \u305 yor\cb1 \
+\cf2 \cb3 6.\cf4  
+\f1 \uc0\u9989 
+\f0  Error handling ve Google Sheets comment bildirimleri \'e7al\uc0\u305 \u351 \u305 yor\cb1 \
+\
+\cb3 ---\cb1 \
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f3\fs26 \cf0 \kerning1\expnd0\expndtw0 V21 json i\'e7erisindeki her node\'92u, google sheets (meta ads automation - sayfa:son) \'92( girdilerini , Facebook developer sayfas\uc0\u305 n\u305  ve n8n mimarisini \'e7ok iyi \'f6\u287 renmen laz\u305 m.  Yazd\u305 klar\u305 n\u305  ve otomasyonla ilgili detaylar\u305  cevaplayay\u305 m bir sonraki cevaplar\u305 nda bu bilgileri \'f6\u287 renmi\u351  bir \u351 ekilde cevapla. Ayr\u305 ca bana hi\'e7bir zaman k\u305 sa kodlar verip bunu x-x yerine ekle deme. Direkt hangi node i\'e7erisine ekleyece\u287 im t\'fcm kodu vermen laz\u305 m. Bunun i\'e7in ilk dosyadaki json dosyas\u305 ndan beslenebilirsin veya ad\u305 m ad\u305 m gidece\u287 imiz i\'e7in ben sana mevcut kodlar\u305  veriririm onlar\u305  d\'fczelterek gideriz. A\u351 ama a\u351 ama gitmek i\'e7in sorunlar\u305 n yan\u305 na v1-v2 vs ekledim. e\u287 er verdi\u287 in cevaplar \'e7\'f6z\'fcm olmazsa onu \'e7\'f6zene kadar bir sonraki soruna(V) ye ge\'e7meyiz, oray\u305  kusursuz hale getirmeliyiz!\
+\
+SS1- Mevcut Campaign Budget - Ad Set Create hatas\uc0\u305 \
+SS2 - Camp/ Ad Set / Ads 
+\f4\b Create
+\f3\b0   (CBO/ABO) create ve update ak\uc0\u305 \u351 lar\u305 nda bu yap\u305 y\u305  dikkate almal\u305 y\u305 z.\
+SS3- Camp/ Ad Set / Ads 
+\f4\b Update 
+\f3\b0 (CBO/ABO) create ve update ak\uc0\u305 \u351 lar\u305 nda bu yap\u305 y\u305  dikkate almal\u305 y\u305 z.\
+SS4 - Sync\
+SS5- Sync - Google sheets yap\uc0\u305 s\u305 \
+\
+Camp/ Ad Set / Ads 
+\f4\b Create
+\f3\b0  ( CBO = Campaign Budget (burada sadece kampanya d\'fczeyinde b\'fct\'e7e veriyoruz) / ABO= Ad Set Budget/ (burada sadece ad set d\'fczeyinde b\'fct\'e7e veriyoruz.\
+\
+Camp/ Ad Set / Ads 
+\f4\b Update
+\f3\b0  ( CBO = Campaign Budget (burada sadece kampanya d\'fczeyinde update yap\uc0\u305 yoruz) / ABO= Ad Set Budget/ (burada sadece ad set d\'fczeyinde update yap\u305 yoruz)\
+\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+
+\f4\b \cf0 Sync
+\f3\b0  = Burada yap\uc0\u305  \u351 \'f6yle i\u351 liyor. Ekip dosya i\'e7erisinde create veya update gibi bir aksiyon almadan \'f6nce ss5 de bulunan google sheets \'93A\'94 s\'fctununda bulunan \'93Sync\'94 ba\u351 l\u305 \u287 \u305  alt\u305 nda update edece\u287 i reklam\u305 (sat\u305 r\u305 ) belirliyor ve A s\'fctunundaki sync butonunu i\u351 aretliyor. N8N workflowu her iki dakikada bir execute oldu\u287 undan dolay\u305  dosyada butonu i\u351 aretli bir sat\u305 r varsa sistem ilk \'f6nce metaya request atarak kampanyan\u305 n, ad set ve ads\'92in g\'fcncel bilgilerini \'e7ekiyor ve google sheets i\'e7erisinde ilgili h\'fccreleri-girdileri g\'fcncelliyor.  Bu aksiyonla kampanyan\u305 n, ad set ve ads\'92in \'fczerine yazma sorunu \'e7\'f6zmeyi hedefliyoruz.\
+\
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls1\ilvl0
+\fs24 \cf0 	}
