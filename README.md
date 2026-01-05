@@ -1,8 +1,3 @@
-# 🚀 HOTEL AGENT - META ADS AUTOMATION MASTER PROMPT
-
-
----
-
 ## 🎯 PROJENİN ANA HEDEFİ
 
 Dijital pazarlama ekibinin Meta Ads Manager'a **hiç girmeden** tüm Facebook & Instagram reklam operasyonlarını **sadece Google Sheets üzerinden** yönetmesini sağlayan tam otomatik sistem.
