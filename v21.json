@@ -1,5 +1,5 @@
 {
-  "name": "Hotel Agent - Automation v20 (ULTIMATE FIX)",
+  "name": "Hotel Agent - Automation v21 (FIXED)",
   "nodes": [
     {
       "parameters": {
@@ -469,7 +469,11 @@
           "id": "sOyy3sRQl00RoMfF",
           "name": "FB Token"
         }
-      }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -499,7 +503,11 @@
       ],
       "id": "f33d7617-63ee-43f5-a662-baf598a403f5",
       "name": "AD Set Budget - Ad Set Create",
-      "alwaysOutputData": false
+      "alwaysOutputData": false,
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -1080,7 +1088,11 @@
           "id": "sOyy3sRQl00RoMfF",
           "name": "FB Token"
         }
-      }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -1109,7 +1121,11 @@
         6480
       ],
       "id": "13daac61-9741-44b8-8836-a728f68d51c8",
-      "name": "Ad Set Budget - Camp. Create"
+      "name": "Ad Set Budget - Camp. Create",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -2079,7 +2095,11 @@
         7552
       ],
       "id": "e6b23b90-ad76-439f-a926-85e97ba98144",
-      "name": "Camp Budget - Camp. update"
+      "name": "Camp Budget - Camp. update",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -2660,7 +2680,7 @@
     },
     {
       "parameters": {
-        "jsCode": "/**\n * NODE: Build Final Ad Set Body (CBO) - V10 DICTATOR MODE\n * MODE: \"Run Once for All Items\"\n * LOGIC: \n * 1. Maps User Friendly Strategy Names -> API ENUMS.\n * 2. THE SANITIZER: If 'bid_amount' is missing at the end, FORCE 'LOWEST_COST_WITHOUT_CAP'.\n * 3. Includes targeting_automation for v23.0 compliance.\n */\n\n// ============================================================\n// 1. DATA SYNCHRONIZATION\n// ============================================================\n\nconst metaItems = items; \nconst sourceItems = $('If Budget Level (Camp Budget)').all();\n\n// Veri sayıları tutmuyorsa log düş (Ama işlemi durdurma)\nif (metaItems.length !== sourceItems.length) {\n    console.log(`WARNING: Mismatch detected! Meta: ${metaItems.length} vs Sheet: ${sourceItems.length}. Checking logic...`);\n}\n\nconst returnItems = [];\n\n// ============================================================\n// 2. HELPER FUNCTIONS\n// ============================================================\n\nfunction clean(v) {\n  if (typeof v === 'string') {\n    return v.replace(/\\u00A0/g, ' ').replace(/\\r?\\n/g, ' ').trim().replace(/^=\"\\s*|\\s*\"$/g, '');\n  }\n  return v == null ? '' : v;\n}\n\nfunction getVal(obj, keyStr) {\n    if (!obj) return undefined;\n    const keys = Object.keys(obj);\n    const key = keys.find(k => k.toLowerCase() === keyStr.toLowerCase().trim());\n    return key ? obj[key] : undefined;\n}\n\nfunction parseDate(dateInput) {\n  if (!dateInput) return undefined;\n  const str = String(dateInput).trim();\n  if (/^\\d{1,2}\\.\\d{1,2}\\.\\d{4}/.test(str)) { // DD.MM.YYYY\n      const parts = str.split('.');\n      return new Date(parts[2], parts[1] - 1, parts[0]).toISOString();\n  }\n  if (str.includes('/') && !str.includes('.')) { // MM/DD/YYYY\n      const d = new Date(str);\n      return !isNaN(d.getTime()) ? d.toISOString() : undefined;\n  }\n  const num = Number(str); // Excel Serial\n  if (!isNaN(num) && num > 20000) {\n      const epoch = new Date(Date.UTC(1899, 11, 30));\n      return new Date(epoch.getTime() + num * 86400000).toISOString();\n  }\n  if (str.includes('T') && str.includes('-')) return str; // ISO\n  return undefined;\n}\n\nfunction parseMoney(val) {\n  if (!val) return 0;\n  let s = String(val).trim();\n  // \"1.000,50\" -> \"1000.50\" veya \"50,50\" -> \"50.50\"\n  if (s.includes('.') && s.includes(',')) {\n      s = s.replace(/\\./g, '').replace(/,/g, '.');\n  } else if (s.includes(',')) {\n      s = s.replace(/,/g, '.');\n  }\n  const n = parseFloat(s);\n  // Meta kuruş ister (100 TRY = 10000)\n  return (isNaN(n) || n <= 0) ? 0 : Math.round(n * 100);\n}\n\n// Strateji Çevirici (Human -> API)\nfunction mapStrategy(userStrategy) {\n    const s = clean(userStrategy).toUpperCase();\n    if (s.includes('BID') && s.includes('CAP')) return 'LOWEST_COST_WITH_BID_CAP';\n    if (s.includes('COST') && s.includes('CAP')) return 'COST_CAP';\n    if (s.includes('TARGET')) return 'TARGET_COST';\n    return 'LOWEST_COST_WITHOUT_CAP'; // Varsayılan\n}\n\nfunction validateMetaParams(dType, bEvent, oGoal) {\n  if (dType === 'PHONE_CALL') return { billing_event: 'IMPRESSIONS', optimization_goal: 'QUALITY_CALL', forceFB: true };\n  if (dType === 'MESSAGING_APPS') {\n      const goal = (oGoal === 'LINK_CLICKS') ? 'CONVERSATIONS' : oGoal;\n      return { billing_event: 'IMPRESSIONS', optimization_goal: goal, forceFB: false };\n  }\n  let finalBilling = bEvent;\n  if (dType === 'WEBSITE') {\n      if (['CONVERSIONS', 'VALUE', 'LANDING_PAGE_VIEWS'].includes(oGoal)) finalBilling = 'IMPRESSIONS';\n      if (!['IMPRESSIONS', 'LINK_CLICKS'].includes(finalBilling)) finalBilling = 'IMPRESSIONS';\n  }\n  return { billing_event: finalBilling, optimization_goal: oGoal, forceFB: false };\n}\n\n// ============================================================\n// 3. MAIN LOOP\n// ============================================================\n\nfor (let i = 0; i < metaItems.length; i++) {\n    try {\n        const metaJson = metaItems[i].json;\n        // Eğer index kayması varsa (nadir durum), boş obje ile devam et, hata patlatma\n        const sheetJson = sourceItems[i] ? sourceItems[i].json : {};\n\n        if (!sheetJson || Object.keys(sheetJson).length === 0) {\n            console.log(`Skipping Index ${i}: No Source Data.`);\n            continue;\n        }\n\n        // --- 1. EXTRACT BASIC DATA ---\n        const campaignId = clean(metaJson.campaign_id || metaJson.id || metaJson['Campaign ID']);\n        const adSetName = clean(getVal(sheetJson, 'Ad Set Name') || getVal(sheetJson, 'adset_name'));\n        const status = clean(getVal(sheetJson, 'Status (Ad Set)') || getVal(sheetJson, 'status') || 'PAUSED').toUpperCase();\n        \n        // --- 2. BIDDING LOGIC (Raw) ---\n        const rawStrategy = getVal(sheetJson, 'Bid Strategy');\n        const rawAmount = getVal(sheetJson, 'Bid Amount');\n        \n        let apiStrategy = mapStrategy(rawStrategy); // Çevrilmiş Strateji\n        let bidAmountKurus = parseMoney(rawAmount); // Hesaplanmış Tutar\n\n        // --- 3. OTHER PARAMS ---\n        const convLoc = clean(getVal(sheetJson, 'Conversion Location') || 'WEBSITE').toUpperCase();\n        const rawBilling = clean(getVal(sheetJson, 'Billing Event') || 'IMPRESSIONS').toUpperCase();\n        const rawGoal = clean(getVal(sheetJson, 'Optimization Goal') || 'LINK_CLICKS').toUpperCase();\n        const platformStr = clean(getVal(sheetJson, 'Platform') || 'Both').toLowerCase();\n        const placementStr = clean(getVal(sheetJson, 'Placements') || 'AUTO').toLowerCase();\n        \n        const ageMinRaw = getVal(sheetJson, 'Age_Min') || getVal(sheetJson, 'age_min');\n        const ageMaxRaw = getVal(sheetJson, 'Age_Max') || getVal(sheetJson, 'age_max');\n        const endDateRaw = getVal(sheetJson, 'End Date') || getVal(sheetJson, 'end_time');\n        const startDateRaw = getVal(sheetJson, 'Start Date') || getVal(sheetJson, 'start_time');\n        \n        const pixelId = clean(getVal(sheetJson, 'Pixel_ID') || '').replace(/\\D/g, '');\n        const pageId = clean(getVal(sheetJson, 'FB Page_ID') || '').replace(/\\D/g, '');\n        const accountId = clean(getVal(sheetJson, 'Account ID') || getVal(sheetJson, 'account_id'));\n\n        // --- 4. VALIDATION & TARGETING ---\n        const destMap = { 'WEBSITE': 'WEBSITE', 'CALLS': 'PHONE_CALL', 'MESSAGING': 'MESSAGING_APPS', 'ON_AD': 'ON_AD', 'APP': 'APP' };\n        const destType = destMap[convLoc] || 'WEBSITE';\n        const validated = validateMetaParams(destType, rawBilling, rawGoal);\n\n        const targeting = {\n            geo_locations: { countries: ['TR'] },\n            age_min: parseInt(ageMinRaw) || 18,\n            age_max: parseInt(ageMaxRaw) || 65,\n            publisher_platforms: [],\n            facebook_positions: [],\n            instagram_positions: [],\n            device_platforms: ['mobile', 'desktop'],\n            targeting_automation: { advantage_audience: 0 }\n        };\n\n        let useFB = validated.forceFB || platformStr.includes('facebook') || platformStr.includes('both');\n        let useIG = !validated.forceFB && (platformStr.includes('instagram') || platformStr.includes('both'));\n        if (!useFB && !useIG) useFB = true;\n\n        if (useFB) targeting.publisher_platforms.push('facebook');\n        if (useIG) targeting.publisher_platforms.push('instagram');\n\n        if (placementStr !== 'auto' && placementStr !== '') {\n            if (useFB) {\n                if (placementStr.includes('feed')) targeting.facebook_positions.push('feed');\n                if (placementStr.includes('story')) targeting.facebook_positions.push('story');\n                if (placementStr.includes('reels')) targeting.facebook_positions.push('reels');\n                if (targeting.facebook_positions.length === 0) targeting.facebook_positions.push('feed');\n            }\n            if (useIG) {\n                if (placementStr.includes('feed')) targeting.instagram_positions.push('feed');\n                if (placementStr.includes('story')) targeting.instagram_positions.push('story');\n                if (placementStr.includes('reels')) targeting.instagram_positions.push('reels');\n                if (targeting.instagram_positions.length === 0) targeting.instagram_positions.push('feed');\n            }\n        } else {\n            delete targeting.publisher_platforms;\n            delete targeting.facebook_positions;\n            delete targeting.instagram_positions;\n            delete targeting.device_platforms;\n        }\n\n        let promotedObject = {};\n        if (destType === 'WEBSITE' && pixelId) {\n            promotedObject = { pixel_id: pixelId, custom_event_type: 'OTHER' };\n        } else if (['PHONE_CALL', 'MESSAGING_APPS', 'ON_AD'].includes(destType)) {\n            promotedObject = { page_id: pageId };\n        }\n\n        // --- 5. BUILD BODY ---\n        const finalBody = {\n            name: adSetName,\n            campaign_id: campaignId,\n            status: ['ACTIVE', 'PAUSED'].includes(status) ? status : 'PAUSED',\n            start_time: parseDate(startDateRaw),\n            end_time: parseDate(endDateRaw),\n            billing_event: validated.billing_event,\n            optimization_goal: validated.optimization_goal,\n            destination_type: destType,\n            targeting: targeting,\n            bid_strategy: apiStrategy // Şimdilik bunu koyuyoruz, aşağıda kontrol edeceğiz\n        };\n\n        if (bidAmountKurus > 0) {\n            finalBody.bid_amount = bidAmountKurus;\n        }\n\n        if (Object.keys(promotedObject).length > 0) finalBody.promoted_object = promotedObject;\n\n        // ============================================================\n        // 🚨 6. THE SANITIZER (DIKTATOR MODU) 🚨\n        // Hata 1815857'yi yok eden blok\n        // ============================================================\n        \n        // Kural: Eğer finalBody içinde 'bid_amount' yoksa, stratejiyi ne olursa olsun ez.\n        if (!finalBody.hasOwnProperty('bid_amount')) {\n            // Para yoksa strateji ASLA Bid Cap olamaz.\n            finalBody.bid_strategy = 'LOWEST_COST_WITHOUT_CAP';\n        } \n        // Ekstra Güvenlik: Eğer strateji Lowest Cost ise, içinde 'bid_amount' olsa bile sil (Meta bazen buna da kızar)\n        else if (finalBody.bid_strategy === 'LOWEST_COST_WITHOUT_CAP') {\n            delete finalBody.bid_amount;\n        }\n\n        // --- 7. OUTPUT ---\n        returnItems.push({\n            json: {\n                _finalBody: finalBody,\n                \n                // Passthrough\n                campaign_id: campaignId,\n                campaign_name: clean(getVal(sheetJson, 'Campaign Name')),\n                adset_name: adSetName,\n                objective: clean(getVal(sheetJson, 'Objective')),\n                buying_type: clean(getVal(sheetJson, 'Buying Type')),\n                special_ad_categories: clean(getVal(sheetJson, 'Special Ad Categories')),\n                budget_type: clean(getVal(sheetJson, 'Budget')),\n                lifetime_budget: clean(getVal(sheetJson, 'Lifetime Budget')),\n                campaign_status: clean(getVal(sheetJson, 'Status (Campaign)')),\n                \n                // Debug Info\n                _debug_sanitizer: {\n                    raw_strategy: rawStrategy,\n                    raw_amount: rawAmount,\n                    parsed_amount: bidAmountKurus,\n                    FINAL_STRATEGY: finalBody.bid_strategy,\n                    HAS_AMOUNT: finalBody.hasOwnProperty('bid_amount')\n                },\n                \n                account_id: accountId,\n                original_row_no: sheetJson['Row No']\n            }\n        });\n\n    } catch (err) {\n        returnItems.push({\n            json: { error: true, message: err.message, index: i }\n        });\n    }\n}\n\nreturn returnItems;"
+        "jsCode": "/**\n * Build Final Ad Set Body (CBO) - v21 ULTIMATE FIX\n * MODE: \"Run Once for All Items\"\n * FIXES: \n * - instagram_positions 'feed' (not 'stream')\n * - PHONE_CALL forces Facebook only\n * - billing_event/optimization_goal validation\n * - promoted_object for required destinations\n */\n\nconst metaItems = items;\nconst sourceItems = $('If Budget Level (Camp Budget)').all();\n\nif (metaItems.length !== sourceItems.length) {\n    console.log(`WARNING: Mismatch! Meta: ${metaItems.length} vs Sheet: ${sourceItems.length}`);\n}\n\nconst returnItems = [];\n\nfunction clean(v) {\n  if (typeof v === 'string') {\n    return v.replace(/\\u00A0/g, ' ').replace(/\\r?\\n/g, ' ').trim().replace(/^=\"\\s*|\\s*\"$/g, '');\n  }\n  return v == null ? '' : v;\n}\n\nfunction getVal(obj, keyStr) {\n    if (!obj) return undefined;\n    const keys = Object.keys(obj);\n    const key = keys.find(k => k.toLowerCase() === keyStr.toLowerCase().trim());\n    return key ? obj[key] : undefined;\n}\n\nfunction parseDate(dateInput) {\n  if (!dateInput) return undefined;\n  const str = String(dateInput).trim();\n  if (/^\\d{1,2}\\.\\d{1,2}\\.\\d{4}/.test(str)) {\n      const parts = str.split('.');\n      return new Date(parts[2], parts[1] - 1, parts[0]).toISOString();\n  }\n  if (str.includes('/') && !str.includes('.')) {\n      const d = new Date(str);\n      return !isNaN(d.getTime()) ? d.toISOString() : undefined;\n  }\n  const num = Number(str);\n  if (!isNaN(num) && num > 20000) {\n      const epoch = new Date(Date.UTC(1899, 11, 30));\n      return new Date(epoch.getTime() + num * 86400000).toISOString();\n  }\n  if (str.includes('T') && str.includes('-')) return str;\n  return undefined;\n}\n\nfunction parseMoney(val) {\n  if (!val) return 0;\n  let s = String(val).trim();\n  if (s.includes('.') && s.includes(',')) {\n      s = s.replace(/\\./g, '').replace(/,/g, '.');\n  } else if (s.includes(',')) {\n      s = s.replace(/,/g, '.');\n  }\n  const n = parseFloat(s);\n  return (isNaN(n) || n <= 0) ? 0 : Math.round(n * 100);\n}\n\nfunction mapStrategy(userStrategy) {\n    const s = clean(userStrategy).toUpperCase();\n    if (s.includes('BID') && s.includes('CAP')) return 'LOWEST_COST_WITH_BID_CAP';\n    if (s.includes('COST') && s.includes('CAP')) return 'COST_CAP';\n    if (s.includes('TARGET')) return 'TARGET_COST';\n    return 'LOWEST_COST_WITHOUT_CAP';\n}\n\nfunction mapConversionToDestination(convLoc) {\n  const mapping = {\n    'WEBSITE': 'WEBSITE',\n    'CALLS': 'PHONE_CALL',\n    'MESSAGING': 'MESSAGING_APPS',\n    'ON_AD': 'ON_AD',\n    'APP': 'APP',\n    'NONE': 'WEBSITE'\n  };\n  return mapping[clean(convLoc).toUpperCase()] || 'WEBSITE';\n}\n\nfunction validateMetaParams(dType, bEvent, oGoal) {\n  // PHONE_CALL: Zorunlu düzeltmeler\n  if (dType === 'PHONE_CALL') {\n    return { \n      billing_event: 'IMPRESSIONS', \n      optimization_goal: 'QUALITY_CALL', \n      forceFB: true \n    };\n  }\n  \n  // MESSAGING_APPS: Zorunlu düzeltmeler\n  if (dType === 'MESSAGING_APPS') {\n    return { \n      billing_event: 'IMPRESSIONS', \n      optimization_goal: oGoal === 'LINK_CLICKS' ? 'CONVERSATIONS' : oGoal, \n      forceFB: true \n    };\n  }\n  \n  // ON_AD (Lead Form): Düzeltmeler\n  if (dType === 'ON_AD') {\n    return {\n      billing_event: 'IMPRESSIONS',\n      optimization_goal: ['LEAD_GENERATION', 'REACH'].includes(oGoal) ? oGoal : 'LEAD_GENERATION',\n      forceFB: false\n    };\n  }\n  \n  // WEBSITE: billing_event kontrolü\n  let finalBilling = bEvent;\n  if (dType === 'WEBSITE') {\n    if (['CONVERSIONS', 'VALUE', 'LANDING_PAGE_VIEWS'].includes(oGoal)) {\n      finalBilling = 'IMPRESSIONS';\n    }\n    if (!['IMPRESSIONS', 'LINK_CLICKS'].includes(finalBilling)) {\n      finalBilling = 'IMPRESSIONS';\n    }\n  }\n  \n  return { billing_event: finalBilling, optimization_goal: oGoal, forceFB: false };\n}\n\nfunction buildPromotedObject(destType, optGoal, pageId, pixelId) {\n  if (destType === 'PHONE_CALL' && pageId) {\n    return { page_id: pageId };\n  }\n  if (destType === 'ON_AD' && pageId) {\n    return { page_id: pageId };\n  }\n  if (destType === 'WEBSITE' && pixelId) {\n    return { pixel_id: pixelId, custom_event_type: 'OTHER' };\n  }\n  if (optGoal === 'LEAD_GENERATION' && pageId) {\n    return { page_id: pageId };\n  }\n  return null;\n}\n\nfor (let i = 0; i < metaItems.length; i++) {\n    try {\n        const metaJson = metaItems[i].json;\n        const sheetJson = sourceItems[i] ? sourceItems[i].json : {};\n\n        if (!sheetJson || Object.keys(sheetJson).length === 0) {\n            console.log(`Skipping Index ${i}: No Source Data.`);\n            continue;\n        }\n\n        const campaignId = clean(metaJson.campaign_id || metaJson.id || metaJson['Campaign ID']);\n        const adSetName = clean(getVal(sheetJson, 'Ad Set Name') || getVal(sheetJson, 'adset_name'));\n        const status = clean(getVal(sheetJson, 'Status (Ad Set)') || getVal(sheetJson, 'status') || 'PAUSED').toUpperCase();\n        \n        const rawStrategy = getVal(sheetJson, 'Bid Strategy');\n        const rawAmount = getVal(sheetJson, 'Bid Amount');\n        \n        let apiStrategy = mapStrategy(rawStrategy);\n        let bidAmountKurus = parseMoney(rawAmount);\n\n        const convLoc = clean(getVal(sheetJson, 'Conversion Location') || 'WEBSITE').toUpperCase();\n        const rawBilling = clean(getVal(sheetJson, 'Billing Event') || 'IMPRESSIONS').toUpperCase();\n        const rawGoal = clean(getVal(sheetJson, 'Optimization Goal') || 'LINK_CLICKS').toUpperCase();\n        const platformStr = clean(getVal(sheetJson, 'Platform') || 'Both').toLowerCase();\n        const placementStr = clean(getVal(sheetJson, 'Placements') || 'AUTO').toLowerCase();\n        \n        const ageMinRaw = getVal(sheetJson, 'Age_Min') || getVal(sheetJson, 'age_min');\n        const ageMaxRaw = getVal(sheetJson, 'Age_Max') || getVal(sheetJson, 'age_max');\n        const endDateRaw = getVal(sheetJson, 'End Date') || getVal(sheetJson, 'end_time');\n        const startDateRaw = getVal(sheetJson, 'Start Date') || getVal(sheetJson, 'start_time');\n        \n        const pixelId = clean(getVal(sheetJson, 'Pixel_ID') || '').replace(/\\D/g, '');\n        const pageId = clean(getVal(sheetJson, 'FB Page_ID') || '').replace(/\\D/g, '');\n        const accountId = clean(getVal(sheetJson, 'Account ID') || getVal(sheetJson, 'account_id'));\n\n        const destType = mapConversionToDestination(convLoc);\n        const validated = validateMetaParams(destType, rawBilling, rawGoal);\n\n        const ageMin = Math.max(13, Math.min(65, parseInt(ageMinRaw) || 18));\n        const ageMax = Math.max(ageMin, Math.min(65, parseInt(ageMaxRaw) || 65));\n\n        const targeting = {\n            geo_locations: { countries: ['TR'] },\n            age_min: ageMin,\n            age_max: ageMax,\n            publisher_platforms: [],\n            facebook_positions: [],\n            instagram_positions: [],\n            device_platforms: ['mobile', 'desktop'],\n            targeting_automation: { advantage_audience: 0 }\n        };\n\n        let useFB = validated.forceFB || platformStr.includes('facebook') || platformStr.includes('both');\n        let useIG = !validated.forceFB && (platformStr.includes('instagram') || platformStr.includes('both'));\n        if (!useFB && !useIG) useFB = true;\n\n        if (useFB) targeting.publisher_platforms.push('facebook');\n        if (useIG) targeting.publisher_platforms.push('instagram');\n\n        if (placementStr !== 'auto' && placementStr !== '') {\n            if (useFB) {\n                if (placementStr.includes('feed')) targeting.facebook_positions.push('feed');\n                if (placementStr.includes('story') || placementStr.includes('stories')) targeting.facebook_positions.push('story');\n                if (placementStr.includes('reels')) targeting.facebook_positions.push('reels');\n                if (targeting.facebook_positions.length === 0) targeting.facebook_positions.push('feed');\n            }\n            if (useIG) {\n                if (placementStr.includes('feed')) targeting.instagram_positions.push('feed');\n                if (placementStr.includes('story') || placementStr.includes('stories')) targeting.instagram_positions.push('story');\n                if (placementStr.includes('reels')) targeting.instagram_positions.push('reels');\n                if (targeting.instagram_positions.length === 0) targeting.instagram_positions.push('feed');\n            }\n        } else {\n            delete targeting.publisher_platforms;\n            delete targeting.facebook_positions;\n            delete targeting.instagram_positions;\n            delete targeting.device_platforms;\n        }\n\n        const promotedObject = buildPromotedObject(destType, validated.optimization_goal, pageId, pixelId);\n\n        const finalBody = {\n            name: adSetName,\n            campaign_id: campaignId,\n            status: ['ACTIVE', 'PAUSED'].includes(status) ? status : 'PAUSED',\n            start_time: parseDate(startDateRaw),\n            end_time: parseDate(endDateRaw),\n            billing_event: validated.billing_event,\n            optimization_goal: validated.optimization_goal,\n            destination_type: destType,\n            targeting: targeting,\n            bid_strategy: apiStrategy\n        };\n\n        if (bidAmountKurus > 0) {\n            finalBody.bid_amount = bidAmountKurus;\n        }\n\n        if (promotedObject) finalBody.promoted_object = promotedObject;\n\n        // Sanitizer: bid_amount yoksa stratejiyi düzelt\n        if (!finalBody.hasOwnProperty('bid_amount')) {\n            finalBody.bid_strategy = 'LOWEST_COST_WITHOUT_CAP';\n        } else if (finalBody.bid_strategy === 'LOWEST_COST_WITHOUT_CAP') {\n            delete finalBody.bid_amount;\n        }\n\n        // Clean empty values\n        Object.keys(finalBody).forEach(k => {\n          if (finalBody[k] === '' || finalBody[k] == null) delete finalBody[k];\n        });\n\n        returnItems.push({\n            json: {\n                _finalBody: finalBody,\n                campaign_id: campaignId,\n                campaign_name: clean(getVal(sheetJson, 'Campaign Name')),\n                adset_name: adSetName,\n                account_id: accountId,\n                original_row_no: sheetJson['Row No'],\n                _debug: {\n                    destType,\n                    validated,\n                    useFB,\n                    useIG\n                }\n            }\n        });\n\n    } catch (err) {\n        returnItems.push({\n            json: { error: true, message: err.message, index: i }\n        });\n    }\n}\n\nreturn returnItems;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -2674,7 +2694,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "/**\n * Build Final Ad Set Body1 (ABO) - v20 ULTIMATE FIX\n * \n * Same as CBO but with daily_budget\n */\n\nconst clean = v => {\n  if (typeof v === 'string') {\n    return v.replace(/\\u00A0/g, ' ').replace(/\\r?\\n/g, ' ').trim().replace(/^=\"\\s*|\\s*\"$/g, '');\n  }\n  return v == null ? '' : v;\n};\n\nconst looseGet = (obj, keys) => {\n  if (!obj) return undefined;\n  const norm = s => String(s ?? '').toLowerCase().replace(/\\u00A0/g, ' ').replace(/[^a-z0-9]/g, '').trim();\n  const look = Object.fromEntries(Object.keys(obj || {}).map(k => [norm(k), k]));\n  for (const k of keys) {\n    const hit = look[norm(k)];\n    if (hit) return obj[hit];\n  }\n  return undefined;\n};\n\nfunction validateAndFixApiParams(destination_type, billing_event, optimization_goal) {\n  let fb = billing_event, fo = optimization_goal;\n  switch (destination_type) {\n    case 'PHONE_CALL': fb = 'IMPRESSIONS'; fo = 'QUALITY_CALL'; break;\n    case 'MESSAGING_APPS': fb = 'IMPRESSIONS'; if (!['CONVERSATIONS','LEAD_GENERATION','IMPRESSIONS'].includes(fo)) fo = 'CONVERSATIONS'; break;\n    case 'ON_AD': case 'ON_FACEBOOK': fb = 'IMPRESSIONS'; if (!['LEAD_GENERATION','POST_ENGAGEMENT','IMPRESSIONS','REACH','VIDEO_VIEWS'].includes(fo)) fo = 'LEAD_GENERATION'; break;\n    default: if (!['IMPRESSIONS','LINK_CLICKS'].includes(fb)) fb = 'IMPRESSIONS'; if (!['LINK_CLICKS','LANDING_PAGE_VIEWS','OFFSITE_CONVERSIONS','VALUE','IMPRESSIONS','REACH','CONVERSIONS'].includes(fo)) fo = 'LINK_CLICKS';\n  }\n  return { billing_event: fb, optimization_goal: fo };\n}\n\nfunction getPromotedObject(dt, og, pixelId, pageId) {\n  if (dt === 'PHONE_CALL' && pageId) return { page_id: pageId };\n  if (og === 'LEAD_GENERATION' && pageId) return { page_id: pageId };\n  if (['OFFSITE_CONVERSIONS','VALUE','CONVERSIONS'].includes(og) && pixelId) return { pixel_id: pixelId };\n  return null;\n}\n\n// ========== MAIN LOGIC ==========\nconst cur = item.json || {};\nconst idx = $itemIndex;\n\n// ⚠️ v20: Get original data by $itemIndex from ABO filter\nlet originalData = {};\n\ntry {\n  const budgetItems = $('If Budget Level (Camp Budget)1').all() || [];\n  if (budgetItems[idx] && budgetItems[idx].json) {\n    originalData = budgetItems[idx].json;\n  }\n} catch (e) {}\n\nif (Object.keys(originalData).length === 0) {\n  try {\n    const codeItems = $('Code in JavaScript').all() || [];\n    const aboItems = codeItems.filter(it => {\n      const bt = (it.json.budget_type || '').toLowerCase();\n      return bt.includes('ad set');\n    });\n    if (aboItems[idx] && aboItems[idx].json) {\n      originalData = aboItems[idx].json;\n    }\n  } catch (e) {}\n}\n\nlet ACCOUNT_ID = '';\ntry { ACCOUNT_ID = $('Mapping')?.item?.json?.account_id || ''; } catch(e){}\nconst account_id = ACCOUNT_ID || originalData.account_id || originalData['Account ID'] || '';\n\nconst getData = (keys) => looseGet(originalData, keys);\n\nconst campaign_id = cur.campaign_id || cur['Campaign ID'] || '';\nconst campaign_name = cur.campaign_name || cur['Campaign Name'] || originalData.campaign_name || '';\nconst adset_name = getData(['Ad Set Name', 'adset_name']) || '';\nconst status_adset = (getData(['status_adset', 'Status (Ad Set)', 'status']) || 'PAUSED').toUpperCase();\n\nconst billing_event_raw = getData(['billing_event', 'Billing Event']) || 'IMPRESSIONS';\nconst optimization_goal_raw = getData(['optimization_goal', 'Optimization Goal']) || 'LINK_CLICKS';\nlet bid_strategy = getData(['bid_strategy', 'Bid Strategy']) || 'LOWEST_COST_WITHOUT_CAP';\n\nconst bid_amount_raw = getData(['bid_amount', 'Bid Amount', 'Bid Cap']);\nlet bid_amount = null;\nif (bid_amount_raw && !isNaN(Number(bid_amount_raw)) && Number(bid_amount_raw) > 0) {\n  bid_amount = Math.round(Number(bid_amount_raw) * 100);\n}\n\nconst BID_REQUIRED = ['LOWEST_COST_WITH_BID_CAP', 'COST_CAP', 'TARGET_COST'];\nif (BID_REQUIRED.includes(bid_strategy) && (!bid_amount || bid_amount <= 0)) {\n  bid_strategy = 'LOWEST_COST_WITHOUT_CAP';\n}\n\n// ⚠️ ABO: Daily Budget (TRY → kuruş)\nconst daily_budget_raw = getData(['daily_budget', 'Daily Budget', 'Ad Set Budget']);\nlet daily_budget = null;\nif (daily_budget_raw && !isNaN(Number(daily_budget_raw))) {\n  daily_budget = Math.round(Number(daily_budget_raw) * 100);\n  if (daily_budget < 10000) daily_budget = 10000;\n}\n\nlet start_time = originalData.start_time || getData(['start_time', 'Start Date']) || '';\nlet end_time = originalData.end_time || getData(['end_time', 'End Date']) || '';\nif (!start_time) start_time = new Date().toISOString();\nif (!end_time) end_time = new Date(new Date(start_time).getTime() + 30*24*60*60*1000).toISOString();\n\nlet age_min = Number(getData(['age_min', 'Age_Min']) || 18);\nlet age_max = Number(getData(['age_max', 'Age_Max']) || 65);\nage_min = Math.max(13, Math.min(65, age_min));\nage_max = Math.max(age_min, Math.min(65, age_max));\n\nconst convCell = getData(['conversion_location', 'Conversion Location', 'destination_type']) || 'WEBSITE';\nconst convNorm = String(convCell).toUpperCase();\nlet destination_type = 'WEBSITE';\nif (/APP/.test(convNorm)) destination_type = 'APP';\nelse if (/(MESSAGE|WHATSAPP|MESSENGER|DM|MESSAGING)/.test(convNorm)) destination_type = 'MESSAGING_APPS';\nelse if (/(ON_FACEBOOK|PROFILE|ON_AD)/.test(convNorm)) destination_type = 'ON_AD';\nelse if (/(CALL|PHONE|CALLS)/.test(convNorm)) destination_type = 'PHONE_CALL';\n\nconst validated = validateAndFixApiParams(destination_type, billing_event_raw, optimization_goal_raw);\nconst billing_event = validated.billing_event;\nconst optimization_goal = validated.optimization_goal;\n\nconst pixel_id = String(getData(['Pixel_ID', 'Pixel ID']) ?? '').replace(/[^\\d]/g, '') || undefined;\nconst page_id = String(getData(['FB Page_ID', 'page_id']) ?? '').replace(/[^\\d]/g, '') || undefined;\nconst promoted_object = getPromotedObject(destination_type, optimization_goal, pixel_id, page_id);\n\n// Targeting\nconst platformRaw = clean(getData(['platform', 'Platform']) || '').toLowerCase();\nconst placementRaw = clean(getData(['placement', 'Placements']) || '');\n\nlet useFacebook = false, useInstagram = false;\nif (platformRaw.includes('both')) { useFacebook = true; useInstagram = true; }\nelse if (platformRaw.includes('facebook') && platformRaw.includes('instagram')) { useFacebook = true; useInstagram = true; }\nelse if (platformRaw.includes('facebook')) { useFacebook = true; }\nelse if (platformRaw.includes('instagram')) { useInstagram = true; }\n\nif (placementRaw && !useFacebook && !useInstagram) {\n  const pl = placementRaw.toLowerCase();\n  if (pl.includes('facebook')) useFacebook = true;\n  if (pl.includes('instagram')) useInstagram = true;\n}\n\nif (!useFacebook && !useInstagram) useFacebook = true;\nif (destination_type === 'PHONE_CALL' || destination_type === 'MESSAGING_APPS') {\n  useFacebook = true; useInstagram = false;\n}\n\nconst publisher_platforms = [];\nconst facebook_positions = [];\nconst instagram_positions = [];\nlet device_platforms = ['mobile', 'desktop'];\n\nif (useFacebook) { publisher_platforms.push('facebook'); facebook_positions.push('feed'); }\nif (useInstagram) {\n  publisher_platforms.push('instagram');\n  if (!useFacebook) device_platforms = ['mobile'];\n  if (optimization_goal === 'REACH') { instagram_positions.push('stream'); }\n  else { instagram_positions.push('stream'); instagram_positions.push('story'); instagram_positions.push('reels'); }\n}\n\nconst targeting = {\n  age_min, age_max,\n  geo_locations: { countries: ['TR'] },\n  device_platforms,\n  publisher_platforms,\n  targeting_automation: { advantage_audience: 0 }\n};\nif (facebook_positions.length > 0) targeting.facebook_positions = facebook_positions;\nif (instagram_positions.length > 0) targeting.instagram_positions = instagram_positions;\n\nconst finalBody = {\n  name: adset_name || `Ad Set - ${new Date().toISOString().slice(0,10)}`,\n  campaign_id,\n  status: status_adset,\n  destination_type,\n  billing_event,\n  optimization_goal,\n  bid_strategy,\n  targeting,\n  start_time,\n  end_time\n};\n\nif (BID_REQUIRED.includes(bid_strategy) && bid_amount > 0) finalBody.bid_amount = bid_amount;\nif (daily_budget && daily_budget >= 10000) finalBody.daily_budget = daily_budget;\nif (promoted_object) finalBody.promoted_object = promoted_object;\n\nitem.json._finalBody = finalBody;\nitem.json.account_id = account_id;\nitem.json.__debug_v20_abo = { itemIndex: idx, adset_name, bid_strategy, daily_budget_kurus: daily_budget };\n\nreturn item;\n"
+        "jsCode": "/**\n * Build Final Ad Set Body1 (ABO) - v21 ULTIMATE FIX\n * Same as CBO but with daily_budget at adset level\n * FIXES: \n * - instagram_positions 'feed' (not 'stream')\n * - PHONE_CALL/MESSAGING forces Facebook only\n * - billing_event/optimization_goal validation\n * - promoted_object for required destinations\n */\n\nconst clean = v => {\n  if (typeof v === 'string') {\n    return v.replace(/\\u00A0/g, ' ').replace(/\\r?\\n/g, ' ').trim().replace(/^=\"\\s*|\\s*\"$/g, '');\n  }\n  return v == null ? '' : v;\n};\n\nconst looseGet = (obj, keys) => {\n  if (!obj) return undefined;\n  const norm = s => String(s ?? '').toLowerCase().replace(/\\u00A0/g, ' ').replace(/[^a-z0-9]/g, '').trim();\n  const look = Object.fromEntries(Object.keys(obj || {}).map(k => [norm(k), k]));\n  for (const k of keys) {\n    const hit = look[norm(k)];\n    if (hit) return obj[hit];\n  }\n  return undefined;\n};\n\nfunction mapConversionToDestination(convLoc) {\n  const c = clean(convLoc).toUpperCase();\n  if (/APP/.test(c)) return 'APP';\n  if (/(MESSAGE|WHATSAPP|MESSENGER|DM|MESSAGING)/.test(c)) return 'MESSAGING_APPS';\n  if (/(ON_FACEBOOK|PROFILE|ON_AD)/.test(c)) return 'ON_AD';\n  if (/(CALL|PHONE|CALLS)/.test(c)) return 'PHONE_CALL';\n  return 'WEBSITE';\n}\n\nfunction validateAndFixApiParams(destination_type, billing_event, optimization_goal) {\n  let fb = billing_event, fo = optimization_goal;\n  let forceFB = false;\n  \n  switch (destination_type) {\n    case 'PHONE_CALL': \n      fb = 'IMPRESSIONS'; \n      fo = 'QUALITY_CALL'; \n      forceFB = true;\n      break;\n    case 'MESSAGING_APPS': \n      fb = 'IMPRESSIONS'; \n      if (!['CONVERSATIONS','LEAD_GENERATION','IMPRESSIONS'].includes(fo)) fo = 'CONVERSATIONS';\n      forceFB = true;\n      break;\n    case 'ON_AD': \n    case 'ON_FACEBOOK': \n      fb = 'IMPRESSIONS'; \n      if (!['LEAD_GENERATION','POST_ENGAGEMENT','IMPRESSIONS','REACH','VIDEO_VIEWS'].includes(fo)) fo = 'LEAD_GENERATION'; \n      break;\n    default: \n      if (!['IMPRESSIONS','LINK_CLICKS'].includes(fb)) fb = 'IMPRESSIONS'; \n      if (!['LINK_CLICKS','LANDING_PAGE_VIEWS','OFFSITE_CONVERSIONS','VALUE','IMPRESSIONS','REACH','CONVERSIONS'].includes(fo)) fo = 'LINK_CLICKS';\n  }\n  return { billing_event: fb, optimization_goal: fo, forceFB };\n}\n\nfunction getPromotedObject(dt, og, pixelId, pageId) {\n  if (dt === 'PHONE_CALL' && pageId) return { page_id: pageId };\n  if (dt === 'ON_AD' && pageId) return { page_id: pageId };\n  if (og === 'LEAD_GENERATION' && pageId) return { page_id: pageId };\n  if (['OFFSITE_CONVERSIONS','VALUE','CONVERSIONS'].includes(og) && pixelId) return { pixel_id: pixelId, custom_event_type: 'OTHER' };\n  if (dt === 'WEBSITE' && pixelId) return { pixel_id: pixelId, custom_event_type: 'OTHER' };\n  return null;\n}\n\n// ========== MAIN LOGIC ==========\nconst cur = item.json || {};\nconst idx = $itemIndex;\n\nlet originalData = {};\n\ntry {\n  const budgetItems = $('If Budget Level (Camp Budget)').all() || [];\n  // ABO: FALSE branch (index 1)\n  if (budgetItems[idx] && budgetItems[idx].json) {\n    originalData = budgetItems[idx].json;\n  }\n} catch (e) {}\n\nif (Object.keys(originalData).length === 0) {\n  try {\n    const codeItems = $('Code in JavaScript').all() || [];\n    const aboItems = codeItems.filter(it => {\n      const bt = (it.json.budget_type || '').toLowerCase();\n      return bt.includes('ad set');\n    });\n    if (aboItems[idx] && aboItems[idx].json) {\n      originalData = aboItems[idx].json;\n    }\n  } catch (e) {}\n}\n\nlet ACCOUNT_ID = '';\ntry { ACCOUNT_ID = $('Mapping')?.item?.json?.account_id || ''; } catch(e){}\nconst account_id = ACCOUNT_ID || originalData.account_id || originalData['Account ID'] || '';\n\nconst getData = (keys) => looseGet(originalData, keys);\n\nconst campaign_id = cur.campaign_id || cur['Campaign ID'] || '';\nconst campaign_name = cur.campaign_name || cur['Campaign Name'] || originalData.campaign_name || '';\nconst adset_name = getData(['Ad Set Name', 'adset_name']) || '';\nconst status_adset = (getData(['status_adset', 'Status (Ad Set)', 'status']) || 'PAUSED').toUpperCase();\n\nconst billing_event_raw = (getData(['billing_event', 'Billing Event']) || 'IMPRESSIONS').toUpperCase();\nconst optimization_goal_raw = (getData(['optimization_goal', 'Optimization Goal']) || 'LINK_CLICKS').toUpperCase();\nlet bid_strategy = getData(['bid_strategy', 'Bid Strategy']) || 'LOWEST_COST_WITHOUT_CAP';\n\nconst bid_amount_raw = getData(['bid_amount', 'Bid Amount', 'Bid Cap']);\nlet bid_amount = null;\nif (bid_amount_raw && !isNaN(Number(bid_amount_raw)) && Number(bid_amount_raw) > 0) {\n  bid_amount = Math.round(Number(bid_amount_raw) * 100);\n}\n\nconst BID_REQUIRED = ['LOWEST_COST_WITH_BID_CAP', 'COST_CAP', 'TARGET_COST'];\nif (BID_REQUIRED.includes(bid_strategy) && (!bid_amount || bid_amount <= 0)) {\n  bid_strategy = 'LOWEST_COST_WITHOUT_CAP';\n}\n\n// ABO: Daily Budget at adset level (TRY → kuruş)\nconst daily_budget_raw = getData(['daily_budget', 'Daily Budget', 'Ad Set Budget']);\nlet daily_budget = null;\nif (daily_budget_raw && !isNaN(Number(daily_budget_raw))) {\n  daily_budget = Math.round(Number(daily_budget_raw) * 100);\n  if (daily_budget < 10000) daily_budget = 10000;\n}\n\nlet start_time = originalData.start_time || getData(['start_time', 'Start Date']) || '';\nlet end_time = originalData.end_time || getData(['end_time', 'End Date']) || '';\nif (!start_time) start_time = new Date().toISOString();\nif (!end_time) end_time = new Date(new Date(start_time).getTime() + 30*24*60*60*1000).toISOString();\n\nlet age_min = Number(getData(['age_min', 'Age_Min']) || 18);\nlet age_max = Number(getData(['age_max', 'Age_Max']) || 65);\nage_min = Math.max(13, Math.min(65, age_min));\nage_max = Math.max(age_min, Math.min(65, age_max));\n\nconst convCell = getData(['conversion_location', 'Conversion Location', 'destination_type']) || 'WEBSITE';\nconst destination_type = mapConversionToDestination(convCell);\n\nconst validated = validateAndFixApiParams(destination_type, billing_event_raw, optimization_goal_raw);\nconst billing_event = validated.billing_event;\nconst optimization_goal = validated.optimization_goal;\nconst forceFB = validated.forceFB;\n\nconst pixel_id = String(getData(['Pixel_ID', 'Pixel ID']) ?? '').replace(/[^\\d]/g, '') || undefined;\nconst page_id = String(getData(['FB Page_ID', 'page_id']) ?? '').replace(/[^\\d]/g, '') || undefined;\nconst promoted_object = getPromotedObject(destination_type, optimization_goal, pixel_id, page_id);\n\n// Targeting\nconst platformRaw = clean(getData(['platform', 'Platform']) || '').toLowerCase();\nconst placementRaw = clean(getData(['placement', 'Placements']) || '');\n\nlet useFacebook = false, useInstagram = false;\nif (platformRaw.includes('both')) { useFacebook = true; useInstagram = true; }\nelse if (platformRaw.includes('facebook') && platformRaw.includes('instagram')) { useFacebook = true; useInstagram = true; }\nelse if (platformRaw.includes('facebook')) { useFacebook = true; }\nelse if (platformRaw.includes('instagram')) { useInstagram = true; }\n\nif (placementRaw && !useFacebook && !useInstagram) {\n  const pl = placementRaw.toLowerCase();\n  if (pl.includes('facebook')) useFacebook = true;\n  if (pl.includes('instagram')) useInstagram = true;\n}\n\nif (!useFacebook && !useInstagram) useFacebook = true;\n\n// PHONE_CALL and MESSAGING_APPS: Force Facebook only\nif (forceFB) {\n  useFacebook = true; \n  useInstagram = false;\n}\n\nconst publisher_platforms = [];\nconst facebook_positions = [];\nconst instagram_positions = [];\nlet device_platforms = ['mobile', 'desktop'];\n\nif (useFacebook) { \n  publisher_platforms.push('facebook'); \n  facebook_positions.push('feed'); \n}\nif (useInstagram) {\n  publisher_platforms.push('instagram');\n  if (!useFacebook) device_platforms = ['mobile'];\n  // FIX: Use 'feed' not 'stream'\n  instagram_positions.push('feed');\n  instagram_positions.push('story');\n  instagram_positions.push('reels');\n}\n\nconst targeting = {\n  age_min, age_max,\n  geo_locations: { countries: ['TR'] },\n  device_platforms,\n  publisher_platforms,\n  targeting_automation: { advantage_audience: 0 }\n};\nif (facebook_positions.length > 0) targeting.facebook_positions = facebook_positions;\nif (instagram_positions.length > 0) targeting.instagram_positions = instagram_positions;\n\nconst finalBody = {\n  name: adset_name || `Ad Set - ${new Date().toISOString().slice(0,10)}`,\n  campaign_id,\n  status: ['ACTIVE', 'PAUSED'].includes(status_adset) ? status_adset : 'PAUSED',\n  destination_type,\n  billing_event,\n  optimization_goal,\n  bid_strategy,\n  targeting,\n  start_time,\n  end_time\n};\n\nif (BID_REQUIRED.includes(bid_strategy) && bid_amount > 0) finalBody.bid_amount = bid_amount;\n// ABO: daily_budget at adset level\nif (daily_budget && daily_budget >= 10000) finalBody.daily_budget = daily_budget;\nif (promoted_object) finalBody.promoted_object = promoted_object;\n\nitem.json._finalBody = finalBody;\nitem.json.account_id = account_id;\nitem.json.__debug_v21_abo = { \n  itemIndex: idx, \n  adset_name, \n  bid_strategy, \n  daily_budget_kurus: daily_budget,\n  destination_type,\n  forceFB\n};\n\nreturn item;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -2722,7 +2742,11 @@
           "id": "tNCH6fVpo6A0boq2",
           "name": "Bearer Auth account"
         }
-      }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -3696,7 +3720,11 @@
         6736
       ],
       "id": "94a17714-9ca6-43aa-8ccf-26a856643aec",
-      "name": "Ad Set Budget - Ad Create"
+      "name": "Ad Set Budget - Ad Create",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -4637,7 +4665,11 @@
         7552
       ],
       "id": "c2c09aa3-b029-40de-a7cd-8c19f3c19da2",
-      "name": "Campaign Budget - Ad Set Update"
+      "name": "Campaign Budget - Ad Set Update",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -4661,7 +4693,10 @@
         5104
       ],
       "continueOnFail": true,
-      "notes": "Meta'dan kampanya verilerini ÃƒÂ§eker.\nAdSets dahil tÃƒÂ¼m bilgileri alÃ„Â±r.\nGoogle Sheets gÃƒÂ¼ncelleme iÃƒÂ§in kullanÃ„Â±lÃ„Â±r."
+      "notes": "Meta'dan kampanya verilerini ÃƒÂ§eker.\nAdSets dahil tÃƒÂ¼m bilgileri alÃ„Â±r.\nGoogle Sheets gÃƒÂ¼ncelleme iÃƒÂ§in kullanÃ„Â±lÃ„Â±r.",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -5810,7 +5845,11 @@
         7328
       ],
       "id": "1b8b36c4-05cc-4550-8608-ddd91f4c3a89",
-      "name": "Campaign Budget - Ad Update (Ad ID)"
+      "name": "Campaign Budget - Ad Update (Ad ID)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -5839,7 +5878,11 @@
         7728
       ],
       "id": "650003c2-2462-4f41-88cb-49f2916e2031",
-      "name": "Campaign Budget - Ad Update (Ad Creatives)"
+      "name": "Campaign Budget - Ad Update (Ad Creatives)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -5868,7 +5911,11 @@
         7728
       ],
       "id": "375f3b58-9715-4b34-be6a-81f3408a519c",
-      "name": "Campaign Budget - Ad Update (New Ad Body)"
+      "name": "Campaign Budget - Ad Update (New Ad Body)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -6368,7 +6415,11 @@
         8240
       ],
       "id": "e0bb553f-43f7-4095-8e8b-254925d5bd6a",
-      "name": "Ad Set Budget - Camp. update"
+      "name": "Ad Set Budget - Camp. update",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -6411,7 +6462,11 @@
         8240
       ],
       "id": "685272f1-c395-414e-a6ba-548012e74352",
-      "name": "Ad Set Budget - Ad Set Update"
+      "name": "Ad Set Budget - Ad Set Update",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -6513,7 +6568,11 @@
         8032
       ],
       "id": "82e16efc-6257-4425-af14-3ec3e3ec65a9",
-      "name": "Ad Set Budget - Ad Update (Ad ID)"
+      "name": "Ad Set Budget - Ad Update (Ad ID)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -7911,7 +7970,11 @@
         8416
       ],
       "id": "683e9d77-e65a-4b7e-9e9a-574ae2555fce",
-      "name": "Ad Set Budget - Ad Update (New Ad Body)"
+      "name": "Ad Set Budget - Ad Update (New Ad Body)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
@@ -7940,7 +8003,11 @@
         8416
       ],
       "id": "05b697e2-82c7-431a-ae8a-261cffcbca69",
-      "name": "Ad Set Budget - Ad Update (Ad Creatives)"
+      "name": "Ad Set Budget - Ad Update (Ad Creatives)",
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
       "parameters": {
